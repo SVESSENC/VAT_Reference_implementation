@@ -10,22 +10,24 @@
 
 **Every session, without exception:**
 
-1. **Paste the full content of these files into your agent context before writing any prompt:**
-   - `docs/architecture.md` — so the agent understands the system
-   - `docs/data-contracts.md` — so the agent uses the correct data shapes
-   - `docs/vat-rules.md` — if working on engine/calculation logic
-
-2. **Tell the agent your module.** Start every session with:
-   > "You are working on the `[engine | api | frontend | shared]` module of a VAT calculation application. Your scope is limited to `/src/[module]` and `/tests/[module]`."
-
-3. **Pull the latest `dev` branch** before starting:
+1. **Pull the latest `dev` branch** before starting:
    ```bash
    git checkout dev
    git pull origin dev
    git checkout -b feature/<your-task-name>
    ```
 
-4. **Read any recent PRs or commits to `dev`** to understand what has changed since your last session. Agents have no memory of prior sessions.
+2. **Paste the full content of these files into your agent context — in this order:**
+   - `docs/project-status.md` — **first, always** — tells the agent what already exists
+   - `CHANGELOG.md` (Unreleased section + last 2–3 entries) — recent changes and conventions
+   - `docs/architecture.md` — system design
+   - `docs/data-contracts.md` — all input/output shapes
+   - `docs/vat-rules.md` — if working on engine/calculation logic
+
+3. **Tell the agent your module.** Start every session with:
+   > "You are working on the `[engine | api | frontend | shared]` module of a VAT calculation application. Your scope is limited to `/src/[module]` and `/tests/[module]`."
+
+4. **Read the project-status.md "What Is In Progress" table** before starting. If someone else is mid-way through a related component, coordinate before writing code that will conflict.
 
 ---
 
@@ -95,6 +97,10 @@ Because each agent works independently with no shared state, conflicts are inevi
 - **One feature branch per task.** Do not accumulate multiple features on one branch.
 - **Commit frequently** as you work with the agent, so you can roll back easily if a session produces bad output.
 - **Write a clear commit message** that describes what the code does, not "AI-generated code".
+- **Before opening a PR, update both living docs:**
+  1. Add a `CHANGELOG.md` entry under `[Unreleased]` describing every file changed and why.
+  2. Update `docs/project-status.md`: move completed items, update in-progress work, log any decisions or blockers.
+  3. Commit these updates in the **same commit** as your final code changes.
 - **When opening a PR:**
   - Check the "AI-generated code" box in the PR template.
   - Confirm in the PR description which docs were pasted into the agent session.
@@ -108,11 +114,19 @@ Because each agent works independently with no shared state, conflicts are inevi
 Before every agent session:
 [ ] Pulled latest dev
 [ ] Created a feature branch
-[ ] Pasted docs/architecture.md into context
-[ ] Pasted docs/data-contracts.md into context
+[ ] Read docs/project-status.md — know what's built and what's in progress
+[ ] Pasted docs/project-status.md into agent context
+[ ] Pasted CHANGELOG.md [Unreleased] section into agent context
+[ ] Pasted docs/architecture.md into agent context
+[ ] Pasted docs/data-contracts.md into agent context
 [ ] Pasted docs/vat-rules.md (if touching engine)
 [ ] Told the agent its module and scope
 [ ] Have a single, focused task ready
+
+Before opening a PR:
+[ ] Added CHANGELOG.md entry under [Unreleased]
+[ ] Updated docs/project-status.md
+[ ] Both files committed with code changes
 ```
 
 ---
@@ -125,6 +139,7 @@ Regardless of how the prompt is written, never accept or commit agent output tha
 - Renames or restructures fields defined in `docs/data-contracts.md`
 - Implements VAT rules not documented in `docs/vat-rules.md`
 - Adds external dependencies (npm packages, libraries) without team discussion
-- Modifies `docs/` files directly — these are human-maintained sources of truth
+- Modifies `docs/architecture.md`, `docs/vat-rules.md`, or `docs/data-contracts.md` directly — these are human-maintained sources of truth and require team discussion before changing
+- Updates `docs/project-status.md` or `CHANGELOG.md` autonomously — the human writes these, not the agent
 - Pushes to `main` directly
 - Suggests force-pushing or rewriting git history
