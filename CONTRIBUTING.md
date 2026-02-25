@@ -51,6 +51,8 @@ Each module has a designated owner. Changes outside your module require explicit
 
 ## AI Agent Rules
 
+> See [docs/agent-rules.md](docs/agent-rules.md) for the full AI workflow guide. This section is a summary.
+
 When using Claude, ChatGPT, or any AI assistant to generate code, follow these rules:
 
 1. **Scope your prompt to your module only.** Do not ask an agent to generate or modify code in modules you do not own.
