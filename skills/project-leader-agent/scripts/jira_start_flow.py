@@ -303,6 +303,11 @@ def main() -> int:
         default=".claude/prompts/jira-start-brief.md",
         help="Output markdown brief path.",
     )
+    parser.add_argument(
+        "--metadata-output",
+        default=".claude/prompts/jira-start-brief.json",
+        help="Output JSON metadata path for automation.",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Do not transition/comment in Jira.")
     args = parser.parse_args()
 
@@ -376,11 +381,27 @@ def main() -> int:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(brief, encoding="utf-8")
 
+    metadata = {
+        "issue": issue_key,
+        "summary": summary,
+        "branch": branch_name,
+        "module": module,
+        "module_reason": module_reason,
+        "owner_agent": owner_agent,
+        "owner_reason": owner_reason,
+        "brief_path": str(output_path),
+        "dry_run": bool(args.dry_run),
+    }
+    metadata_path = Path(args.metadata_output)
+    metadata_path.parent.mkdir(parents=True, exist_ok=True)
+    metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+
     print(f"[INFO] Selected issue: {issue_key}")
     print(f"[INFO] Suggested branch: {branch_name}")
     print(f"[INFO] Inferred module: {module}")
     print(f"[INFO] Owner agent: {owner_agent}")
     print(f"[INFO] Brief written: {output_path}")
+    print(f"[INFO] Metadata written: {metadata_path}")
     return 0
 
 
