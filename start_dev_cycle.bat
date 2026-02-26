@@ -151,27 +151,47 @@ if defined DRY_RUN_ARG (
       call :log "[ERROR] codex CLI not found. Cannot auto-run owner agent."
       exit /b 1
     )
-    call :log "[INFO] Starting owner agent run via codex exec."
-    call :run_and_log codex -C "%CD%" exec --dangerously-bypass-approvals-and-sandbox "Read .claude\\prompts\\active-session-!ISSUE!.md and .claude\\prompts\\jira-start-brief.md from the repository, then start working on the ticket now."
-    if errorlevel 1 (
-      call :log "[ERROR] Owner agent run failed."
-      exit /b 1
-    )
-
+    set "MAX_REVIEW_CYCLES=3"
     set "REVIEW_RESULT=.claude\prompts\review-result-!ISSUE!.txt"
-    call :log "[INFO] Running reviewer pass/fail check."
-    call :run_and_log codex -C "%CD%" exec --dangerously-bypass-approvals-and-sandbox -o !REVIEW_RESULT! "Review this repository for ticket !ISSUE!. Respond with PASS or FAIL on the first line, then concise findings."
-    if errorlevel 1 (
-      call :log "[ERROR] Reviewer agent run failed."
-      exit /b 1
-    )
-
     set "REVIEW_VERDICT=UNKNOWN"
-    for /f "usebackq delims=" %%V in (`powershell -NoProfile -Command "$t=Get-Content -Raw '!REVIEW_RESULT!'; if($t -match '(?im)^\\s*PASS\\b'){ 'PASS' } elseif($t -match '(?im)^\\s*FAIL\\b'){ 'FAIL' } else { 'UNKNOWN' }"`) do set "REVIEW_VERDICT=%%V"
-    call :log "[INFO] Reviewer verdict: !REVIEW_VERDICT!"
+    set "PASS_REACHED=0"
+
+    for /L %%R in (1,1,!MAX_REVIEW_CYCLES!) do (
+      if "!PASS_REACHED!"=="1" (
+        rem PASS already reached; skip remaining cycles.
+      ) else (
+        if "%%R"=="1" (
+          call :log "[INFO] Starting owner agent run via codex exec (cycle %%R/!MAX_REVIEW_CYCLES!)."
+          call :run_and_log codex -C "%CD%" exec --dangerously-bypass-approvals-and-sandbox "Read .claude\\prompts\\active-session-!ISSUE!.md and .claude\\prompts\\jira-start-brief.md from the repository, then start working on the ticket now."
+        ) else (
+          call :log "[INFO] Re-running owner agent after review FAIL (cycle %%R/!MAX_REVIEW_CYCLES!)."
+          call :run_and_log codex -C "%CD%" exec --dangerously-bypass-approvals-and-sandbox "Ticket !ISSUE! failed review. Read !REVIEW_RESULT! and fix all findings now, then update code accordingly."
+        )
+        if errorlevel 1 (
+          call :log "[ERROR] Owner agent run failed."
+          exit /b 1
+        )
+
+        call :log "[INFO] Running reviewer pass/fail check."
+        call :run_and_log codex -C "%CD%" exec review --dangerously-bypass-approvals-and-sandbox -o !REVIEW_RESULT! "Review ticket !ISSUE! changes. Start with PASS or FAIL on first line."
+        if errorlevel 1 (
+          call :log "[ERROR] Reviewer agent run failed."
+          exit /b 1
+        )
+
+        set "REVIEW_VERDICT=UNKNOWN"
+        findstr /R /I /C:"^PASS\\b" "!REVIEW_RESULT!" >nul && set "REVIEW_VERDICT=PASS"
+        if /I not "!REVIEW_VERDICT!"=="PASS" (
+          findstr /R /I /C:"^FAIL\\b" "!REVIEW_RESULT!" >nul && set "REVIEW_VERDICT=FAIL"
+        )
+        call :log "[INFO] Reviewer verdict: !REVIEW_VERDICT!"
+
+        if /I "!REVIEW_VERDICT!"=="PASS" set "PASS_REACHED=1"
+      )
+    )
 
     set "JIRA_PLAN=.claude\prompts\jira-auto-close-!ISSUE!.json"
-    if /I "!REVIEW_VERDICT!"=="PASS" (
+    if /I "!PASS_REACHED!"=="1" (
       > "!JIRA_PLAN!" echo {
       >>"!JIRA_PLAN!" echo   "moves": [
       >>"!JIRA_PLAN!" echo     { "issue": "!ISSUE!", "to": "Done" }
@@ -187,10 +207,10 @@ if defined DRY_RUN_ARG (
       >>"!JIRA_PLAN!" echo     { "issue": "!ISSUE!", "to": "In Review" }
       >>"!JIRA_PLAN!" echo   ],
       >>"!JIRA_PLAN!" echo   "comments": [
-      >>"!JIRA_PLAN!" echo     { "issue": "!ISSUE!", "body": "Review: reviewer-agent !REVIEW_VERDICT!. Auto-moved to In Review by start_dev_cycle.bat." }
+      >>"!JIRA_PLAN!" echo     { "issue": "!ISSUE!", "body": "Review: reviewer-agent !REVIEW_VERDICT!. Max retries reached; moved to In Review by start_dev_cycle.bat." }
       >>"!JIRA_PLAN!" echo   ]
       >>"!JIRA_PLAN!" echo }
-      call :log "[INFO] Applying Jira review plan (In Review) for !ISSUE!."
+      call :log "[INFO] Max retries reached. Applying Jira review plan (In Review) for !ISSUE!."
     )
 
     call :run_and_log py .\skills\project-leader-agent\scripts\jira_batch_update.py --plan-file !JIRA_PLAN!

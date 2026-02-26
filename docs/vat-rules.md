@@ -1,62 +1,68 @@
 # VAT Rules
 
-> **This is the source of truth for all VAT calculation logic.**
-> Paste this entire document into any agent session working on the engine or VAT calculation code.
-> Do not implement VAT logic that contradicts or extends beyond what is documented here.
+> Starter VAT rule set for development flow tests.
+> Replace with validated legal policy before production use.
 
 ---
 
 ## Jurisdictions in Scope
 
-> TBD — list the countries or regions this implementation covers.
-
 | Jurisdiction | Notes |
 |-------------|-------|
-| TBD | |
+| DK | Default baseline jurisdiction |
+| DE | Cross-border example jurisdiction |
 
 ---
 
 ## VAT Rates by Country
 
-> TBD — document the standard, reduced, and zero rates per jurisdiction.
-
 | Country | Standard Rate | Reduced Rate(s) | Zero Rate | Notes |
-|---------|-------------|----------------|----------|-------|
-| TBD | | | | |
+|---------|---------------|-----------------|----------|-------|
+| DK | 0.25 | none | 0.00 | Base reference for tests |
+| DE | 0.19 | 0.07 | 0.00 | Reduced example for books |
 
 ---
 
 ## B2B vs B2C Rules
 
-> TBD — describe how VAT treatment differs between business and consumer transactions.
-
 ### B2B (Business to Business)
-- TBD
+- Same-country B2B: apply local standard VAT unless exempt.
+- Cross-border B2B with valid `vatNumber`: reverse charge.
 
 ### B2C (Business to Consumer)
-- TBD
+- Same-country B2C: apply local standard/reduced rate by category.
+- Cross-border B2C: apply supplier-country VAT in this starter profile.
 
 ---
 
 ## Exemptions and Zero-Rated Goods
 
-> TBD — list product categories or transaction types that are exempt or zero-rated.
-
 | Category | Treatment | Jurisdictions | Notes |
 |----------|-----------|--------------|-------|
-| TBD | | | |
+| medical_services | exempt | DK, DE | VAT not charged |
+| education_services | exempt | DK, DE | VAT not charged |
+| books | reduced | DE | Uses DE 7 percent reduced rate |
+| exports_outside_eu | zero-rated | DK, DE | Zero rate for qualifying exports |
 
 ---
 
 ## Reverse Charge Mechanism
 
-> TBD — describe when and how reverse charge applies (typically cross-border B2B).
-
 ### When it applies
-- TBD
+- `customerType` is `B2B`
+- `supplierCountry` differs from `customerCountry`
+- `vatNumber` is present
 
 ### How to calculate
-- TBD
+- Set `vatRate` to `0.00`
+- Set `vatAmount` to `0`
+- Set `isExempt` to `true`
+- Set `grossAmount` equal to `netAmount`
 
 ### Required fields
-- TBD (see also `docs/data-contracts.md` for the `vatNumber` field)
+- `transactionAmount`
+- `customerType`
+- `customerCountry`
+- `supplierCountry`
+- `productCategory`
+- `vatNumber`
