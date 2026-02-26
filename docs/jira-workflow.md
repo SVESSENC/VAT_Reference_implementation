@@ -27,13 +27,30 @@ Jira updates to make at end of session:
 ```
 
 ### At the end of the session
-Apply all updates in one block, with a short pause between calls:
+Apply all updates in one block:
 1. Transition all tickets that changed status (Done, In Progress, etc.)
 2. Add comments to tickets where context is needed
-3. Do transitions before comments — if the transition fails due to rate limiting, comments are less critical
+3. Do transitions before comments — if a transition fails, comments are less critical
 
 ### Spacing
-Leave at least a few seconds between Jira API calls. If you hit a 429 (rate limited), wait 15–30 seconds before retrying. Do not retry in a tight loop.
+Leave a few seconds between each API call. If you hit a 429, follow the exponential backoff guidance below — do not retry immediately.
+
+---
+
+## Handling rate limits (HTTP 429) — Atlassian official guidance
+
+When you receive a `429 Too Many Requests` response:
+
+1. **Check the response headers first** — `Retry-After` or `X-RateLimit-Reset` tells you exactly how long to wait. Use that value if present.
+
+2. **Use exponential backoff** if headers aren't available or the retry still 429s:
+   - Attempt 1 failed → wait **15s**
+   - Attempt 2 failed → wait **30s**
+   - Attempt 3 failed → wait **60s**
+   - Attempt 4 failed → wait **120s**
+   - After 4 failures: give up, note what still needs doing, complete it next session
+
+3. **Optimise queries** — avoid fetching the same data repeatedly. Cache transition IDs (see table below) so you don't need a lookup call before every transition. Pre-lookup transition IDs once per project, not once per ticket.
 
 ---
 
