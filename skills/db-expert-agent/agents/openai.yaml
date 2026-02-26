@@ -1,0 +1,4 @@
+interface:
+  display_name: "DB Expert Agent"
+  short_description: "Handle advanced schema, migration, and query performance work."
+  default_prompt: "Use $db-expert-agent to design safe database schema changes, indexing strategy, and migration rollout with rollback plans."

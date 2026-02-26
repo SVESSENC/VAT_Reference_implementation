@@ -1,0 +1,4 @@
+interface:
+  display_name: "VAT Research Agent"
+  short_description: "Research Danish and EU VAT rules with source-backed guidance."
+  default_prompt: "Use $vat-research-agent to research this VAT question with statute-level citations, confidence labels, and audit-defensible reasoning."

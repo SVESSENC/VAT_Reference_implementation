@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Manager Agent"
+  short_description: "Coordinate repo-wide consistency and execution plans."
+  default_prompt: "Use $project-manager-agent to map this repo, find cross-cutting inconsistencies, and output prioritized workstreams for specialized agents."

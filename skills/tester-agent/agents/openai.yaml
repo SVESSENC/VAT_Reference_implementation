@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tester Agent"
+  short_description: "Design and implement high-signal regression test coverage."
+  default_prompt: "Use $tester-agent to create or improve a test strategy with reliable unit, integration, and regression coverage."

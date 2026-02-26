@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reviewer Agent"
+  short_description: "Review artifacts for risks and consistency."
+  default_prompt: "Use $reviewer-agent to review this artifact for correctness, consistency, risks, and practical fixes."

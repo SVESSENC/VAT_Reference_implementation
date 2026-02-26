@@ -1,58 +1,61 @@
 # Architecture
 
-> **ACTION REQUIRED:** This document must be filled in before any coding begins.
-> Paste this entire document into every agent session so the AI understands the system before generating code.
+> Starter architecture baseline so agent execution is not blocked.
 
 ---
 
 ## Tech Stack
 
-> TBD — agree as a team and document here before writing any code.
-
 | Layer | Technology | Notes |
 |-------|-----------|-------|
-| Engine | TBD | |
-| API | TBD | |
-| Frontend | TBD | |
-| Testing | TBD | |
-| Build/Tooling | TBD | |
+| Engine | Python 3.12 | Core VAT rules and calculations |
+| API | FastAPI | REST wrapper around engine |
+| Frontend | Static HTML/CSS/JS | Simple UI mockups for tests |
+| Testing | Pytest | Unit tests for engine and API |
+| Build/Tooling | GitHub Actions | CI checks on pull requests |
 
 ---
 
 ## High-Level Architecture
 
-> TBD — add a diagram or description of how the components interact.
-
 ```
-[ Frontend ] → [ API ] → [ Engine ]
-                              ↓
+[ Frontend ] -> [ API ] -> [ Engine ]
+                              v
                         [ Shared Types ]
 ```
 
-_Replace with actual architecture once agreed._
+Data flow:
+1. Frontend sends request payload.
+2. API validates input and calls engine.
+3. Engine computes VAT response.
+4. API returns result and frontend renders output.
 
 ---
 
 ## Key Components
 
 ### Engine (`/src/engine`)
-> TBD — describe the core VAT calculation logic and its responsibilities.
+- Owns VAT logic.
+- No UI or HTTP concerns.
 
 ### API (`/src/api`)
-> TBD — describe the REST API layer, endpoints, and how it delegates to the engine.
+- Owns request/response handling.
+- Delegates VAT math to engine.
 
 ### Frontend (`/src/frontend`)
-> TBD — describe the UI layer and how it communicates with the API.
+- Owns presentation and user interaction.
+- For mockups, static files are acceptable.
 
 ### Shared (`/src/shared`)
-> TBD — describe shared types, constants, and utilities. Changes here require team sign-off.
+- Cross-module constants/types.
+- Team sign-off required before changes.
 
 ---
 
 ## External Dependencies
 
-> TBD — list any third-party services, libraries, or APIs the system depends on.
-
 | Dependency | Purpose | Notes |
 |-----------|---------|-------|
-| TBD | | |
+| Jira Cloud API | Ticket automation | Used by scripts in `skills/project-leader-agent/scripts` |
+| OpenAI Codex CLI | Optional autonomous execution | Invoked by `start_dev_cycle.bat` |
+| GitHub | Source control and PRs | `dev` is integration branch |

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Leader Agent"
+  short_description: "Set goals, milestones, and delegated agent execution."
+  default_prompt: "Use $project-leader-agent to define goals, assign specialist workstreams, enforce role constraints and reviewer gates, and apply batched Jira updates."

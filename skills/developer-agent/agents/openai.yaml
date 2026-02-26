@@ -1,0 +1,4 @@
+interface:
+  display_name: "Developer Agent"
+  short_description: "Implement maintainable features with tests and docs."
+  default_prompt: "Use $developer-agent to implement this feature with clean code, tests, and rollout-safe documentation."
