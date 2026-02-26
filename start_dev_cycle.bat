@@ -107,6 +107,23 @@ if defined DRY_RUN_ARG (
     call :log "[ERROR] Git branch step failed."
     exit /b 1
   )
+
+  git ls-remote --exit-code --heads origin !BRANCH! >nul 2>&1
+  if !errorlevel! equ 0 (
+    call :log "[INFO] Branch already exists on origin: !BRANCH! (skip kickoff push)"
+  ) else (
+    call :log "[INFO] Creating kickoff commit so branch is visible on GitHub."
+    call :run_and_log git commit --allow-empty -m "chore: start !ISSUE! development cycle"
+    if errorlevel 1 (
+      call :log "[ERROR] Kickoff commit failed."
+      exit /b 1
+    )
+    call :run_and_log git push -u origin !BRANCH!
+    if errorlevel 1 (
+      call :log "[ERROR] Kickoff push failed."
+      exit /b 1
+    )
+  )
 )
 
 set "SKILLS=!OWNER_AGENT!,reviewer-agent"
