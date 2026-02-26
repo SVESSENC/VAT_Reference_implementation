@@ -180,10 +180,7 @@ if defined DRY_RUN_ARG (
         )
 
         set "REVIEW_VERDICT=UNKNOWN"
-        findstr /R /I /C:"^PASS\\b" "!REVIEW_RESULT!" >nul && set "REVIEW_VERDICT=PASS"
-        if /I not "!REVIEW_VERDICT!"=="PASS" (
-          findstr /R /I /C:"^FAIL\\b" "!REVIEW_RESULT!" >nul && set "REVIEW_VERDICT=FAIL"
-        )
+        for /f "usebackq delims=" %%V in (`powershell -NoProfile -Command "$t=Get-Content -Raw '!REVIEW_RESULT!'; if($t -match '(?im)^\\s*PASS\\b'){ 'PASS' } elseif($t -match '(?im)^\\s*FAIL\\b'){ 'FAIL' } else { 'UNKNOWN' }"`) do set "REVIEW_VERDICT=%%V"
         call :log "[INFO] Reviewer verdict: !REVIEW_VERDICT!"
 
         if /I "!REVIEW_VERDICT!"=="PASS" set "PASS_REACHED=1"
