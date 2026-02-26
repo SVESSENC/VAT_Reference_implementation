@@ -86,3 +86,4 @@ Use this structure for every response:
 Read `references/project-leadership-rubric.md` when prioritization or delegation quality is unclear.
 Read `references/jira-integration.md` to move Jira issues using the bundled script.
 Read `references/role-constraints-playbook.md` to enforce boundaries and autonomy levels.
+Use `scripts/jira_start_flow.py` to pick a ticket, move it to In Progress, and generate an owner-agent execution brief at session start.

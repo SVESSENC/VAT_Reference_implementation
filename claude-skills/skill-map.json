@@ -1,6 +1,10 @@
 {
   "architect-agent": "skills/architect-agent/SKILL.md",
   "db-agent": "skills/db-agent/SKILL.md",
+  "db-expert-agent": "skills/db-expert-agent/SKILL.md",
+  "devops-agent": "skills/devops-agent/SKILL.md",
+  "tester-agent": "skills/tester-agent/SKILL.md",
+  "critic-agent": "skills/critic-agent/SKILL.md",
   "designer-agent": "skills/designer-agent/SKILL.md",
   "developer-agent": "skills/developer-agent/SKILL.md",
   "project-leader-agent": "skills/project-leader-agent/SKILL.md",

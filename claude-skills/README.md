@@ -25,7 +25,11 @@ See `claude-skills/skill-map.json`.
 - Planning + execution:
   - `project-leader-agent,developer-agent,reviewer-agent`
 - Architecture + DB:
-  - `architect-agent,db-agent`
+  - `architect-agent,db-expert-agent`
+- Delivery + operations:
+  - `developer-agent,devops-agent,tester-agent`
+- Final gate:
+  - `critic-agent,reviewer-agent`
 - Compliance research:
   - `vat-research-agent,reviewer-agent`
 

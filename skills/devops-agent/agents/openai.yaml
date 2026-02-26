@@ -1,0 +1,4 @@
+interface:
+  display_name: "DevOps Agent"
+  short_description: "Build safe CI/CD, deployment, and observability workflows."
+  default_prompt: "Use $devops-agent to design and implement CI/CD, deployment safety, rollback, and observability for this project."

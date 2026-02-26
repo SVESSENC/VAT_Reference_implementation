@@ -40,7 +40,7 @@ Deliver one end-to-end flow:
 
 Gates:
 1. Contract compatibility check across modules.
-2. `code-review-agent` on merged slice.
+2. `review-agent` on merged slice.
 3. `validation-security-agent` on API/input boundaries.
 
 ## Phase 3: Rule Expansion and Hardening (Days 3-4)
@@ -82,7 +82,7 @@ Exit criteria:
 1. `project-leader-agent`: planning, sequencing, assignment, Jira batch ownership.
 2. `developer-agent`: implementation within module boundary.
 3. `reviewer-agent`: PASS/FAIL gate.
-4. `code-review-agent`: deep correctness/regression review.
+4. `review-agent`: deep correctness/regression review.
 5. `validation-security-agent`: security and runtime validation.
 6. Specialist agents (`architect`, `db`, `designer`, `vat-research`) on-demand.
 

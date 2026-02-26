@@ -31,3 +31,4 @@ coverage/
 .vscode/settings.json
 
 overview_vat/_git_metadata/
+.claude/prompts/jira-start-brief*.md

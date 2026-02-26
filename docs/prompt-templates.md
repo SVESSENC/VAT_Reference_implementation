@@ -245,13 +245,12 @@ In docs/project-status.md:
 ```
 Run the session auto-start loop from CLAUDE.md:
 
-1. Search Jira: project = TC AND status = "Open" ORDER BY priority DESC, created ASC — take the first result.
-2. Read the full ticket: summary, description, acceptance criteria.
-3. Infer the module (engine / api / frontend / shared). If unclear, ask me.
-4. Announce the ticket and module. Move it to In Progress via Jira MCP (transition ID 181). Add an In Progress comment.
-5. Implement the work within the module boundary. Apply all guardrails from agent-rules.md.
-6. Run the reviewer gate. Produce a PASS or FAIL verdict.
-7. If PASS: transition to Done (transition ID 151), add completion comment, report back to me.
+1. Run: `py .\skills\project-leader-agent\scripts\jira_start_flow.py --output .\.claude\prompts\jira-start-brief.md`
+2. Read the generated brief and announce ticket/module/owner agent to me.
+3. If module is `shared` or `unknown`, stop and ask me before coding.
+4. Implement the work within the module boundary. Apply all guardrails from agent-rules.md.
+5. Run the reviewer gate. Produce a PASS or FAIL verdict.
+6. If PASS: transition to Done (transition ID 151), add completion comment, report back to me.
    If FAIL: transition to In Review (transition ID 211), list findings, do not close the ticket.
 
 Stop at any point and ask me if:
@@ -302,3 +301,4 @@ Rules:
 - Do not guess. If evidence is missing, return FAIL and list what is missing.
 - If there is any correctness or security risk, return FAIL.
 ```
+

@@ -10,12 +10,16 @@
 - `developer-agent`: Implements scoped backend/frontend changes with tests and production-safe handoff notes.
 - `architect-agent`: Defines architecture decisions, component boundaries, integration strategy, and long-term technical direction.
 - `db-agent`: Handles schema design, migrations, indexing, performance tuning, and database operational reliability.
+- `db-expert-agent`: Deep database specialist for advanced schema evolution, indexing strategy, migrations, and operational resilience.
+- `devops-agent`: Owns CI/CD pipelines, deployment safety, environment controls, observability, and rollback readiness.
 - `designer-agent`: Produces UX flows, interaction behavior, and implementation-ready design guidance.
+- `tester-agent`: Owns test strategy and regression confidence across unit, integration, contract, and end-to-end layers.
 
 ## Quality and Review
 
 - `reviewer-agent`: Provides PASS/FAIL quality gate with explicit findings and closure recommendation.
-- `code-review-agent`: Performs deep code review focused on correctness, regressions, maintainability, and missing tests.
+- `review-agent`: Performs deep code review focused on correctness, regressions, maintainability, and missing tests.
+- `critic-agent`: Strict critical reviewer for high-risk correctness, security, and release-readiness findings.
 - `validation-security-agent`: Validates runtime safety and security requirements (input validation, auth/authz, secrets handling, dependency risk, and abuse paths).
 
 ## Domain Specialist
@@ -24,9 +28,7 @@
 
 ## Recommended Additional Agents
 
-- `qa-test-agent`: Owns test strategy and regression coverage across unit, integration, and edge-case scenarios.
 - `security-agent`: Performs threat modeling and security validation (auth, input validation, secret handling, dependency risk).
-- `devops-agent`: Owns CI/CD, environments, deployment safety, rollback plans, and observability setup.
 - `integration-agent`: Coordinates cross-module contract compatibility and end-to-end wiring between services/components.
 - `release-manager-agent`: Runs release planning, go/no-go checks, change freeze policy, and cutover/rollback coordination.
 - `docs-governance-agent`: Keeps architecture/contracts/rules docs synchronized with implementation and flags drift.

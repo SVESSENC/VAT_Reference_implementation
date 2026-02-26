@@ -4,10 +4,14 @@ All Codex skills are vendored into this repository under `skills/`, including:
 
 - `skills/architect-agent`
 - `skills/db-agent`
+- `skills/db-expert-agent`
+- `skills/devops-agent`
 - `skills/designer-agent`
 - `skills/developer-agent`
 - `skills/project-leader-agent`
 - `skills/project-manager-agent`
+- `skills/tester-agent`
+- `skills/critic-agent`
 - `skills/review-agent`
 - `skills/reviewer-agent`
 - `skills/vat-research-agent`

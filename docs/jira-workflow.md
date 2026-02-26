@@ -11,6 +11,28 @@ The Atlassian API is rate-limited. Single-call updates during active coding sess
 
 **Rule: collect Jira changes for a session and apply them in one batch at the end.**
 
+Exception: session start is allowed to perform one immediate update (`Open` -> `In Progress` + start comment) via the start-flow script.
+
+---
+
+## Session start automation (new default)
+
+At the beginning of a session, run:
+
+```powershell
+py .\skills\project-leader-agent\scripts\jira_start_flow.py --output .\.claude\prompts\jira-start-brief.md
+```
+
+What this does:
+1. Picks the next `Open` ticket (`project = TC AND status = "Open" ORDER BY priority DESC, created ASC`)
+2. Infers module + owner agent
+3. Proposes feature branch name
+4. Moves ticket to `In Progress` (transition `181`)
+5. Adds start comment in Jira
+6. Writes an execution brief under `.claude/prompts/`
+
+Use `--issue TC-XX` to target a specific ticket, and `--dry-run` to test without Jira writes.
+
 ---
 
 ## Batching pattern

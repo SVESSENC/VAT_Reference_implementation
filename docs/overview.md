@@ -108,10 +108,9 @@ Sections to fill in:
 
 ```
 1. git checkout dev && git pull origin dev
-2. git checkout -b feature/<task-name>
-3. Tell the agent: "You are working on the [module] module.
-   Your scope is limited to /src/[module] and /tests/[module]."
-4. Give the agent one focused task.
+2. py .\skills\project-leader-agent\scripts\jira_start_flow.py --output .\.claude\prompts\jira-start-brief.md
+3. Create the suggested branch from the generated brief
+4. Run the selected owner agent with that brief and module scope
 ```
 
 Context docs load automatically — `CLAUDE.md` imports `project-status.md`, `CHANGELOG.md`, `architecture.md`, `data-contracts.md`, and `vat-rules.md` at session start. No manual pasting needed.

@@ -96,33 +96,19 @@ The following files are imported automatically into every Claude Code session �
 
 If the human starts a session without giving you a specific task, run this loop automatically:
 
-### Step 1 — Pick the next ticket
-Search Jira for the next available ticket:
-- Project: `TC`
-- JQL: `project = TC AND status = "Open" ORDER BY priority DESC, created ASC`
-- Take the first result only.
-- Read the ticket summary, description, and acceptance criteria in full.
+### Step 1 - Run start-flow automation
+Run:
+```powershell
+py .\skills\project-leader-agent\scripts\jira_start_flow.py --output .\.claude\prompts\jira-start-brief.md
+```
 
-### Step 2 — Infer the module
-Determine the module from the ticket content:
+This command picks the next Open ticket, infers module + owner agent, proposes a feature branch, transitions the issue to **In Progress** (`181`), adds a start comment, and writes a runnable brief.
 
-| Ticket keywords | Module |
-|----------------|--------|
-| engine, VAT logic, calculation, jurisdiction, rate, exemption, reverse charge | `engine` |
-| API, endpoint, route, request, validation, REST | `api` |
-| frontend, UI, form, component, display | `frontend` |
-| shared types, constants, VatInput, VatOutput | `shared` — **stop and confirm with human before proceeding** |
-| unclear | **stop and ask** |
-
-### Step 3 — Announce and branch
+### Step 2 - Announce selected ticket
 Tell the human:
-> "Picking up [TC-XX]: [title]. Module: [module]. Creating branch `feature/TC-XX-<slug>` and moving to In Progress."
+> "Picking up [TC-XX]: [title]. Module: [module]. Owner agent: [agent]. Branch: `feature/TC-XX-<slug>`."
 
-Then use the Atlassian MCP to transition the ticket to **In Progress** (transition ID: `181`) and add a comment:
-```
-Started on branch: feature/TC-XX-<slug>
-Scope: [one line from ticket description]
-```
+If module is `shared` or `unknown`, stop and ask before coding.
 
 ### Step 4 — Implement
 Work within the module boundaries defined above. Apply all guardrails from `docs/agent-rules.md` section 11. If `docs/architecture.md` or `docs/vat-rules.md` are still TBD, stop and tell the human before writing any code.
@@ -155,3 +141,4 @@ Then report to the human: what was built, what files changed, anything they need
 
 See [docs/agent-rules.md](docs/agent-rules.md) for the complete team workflow.
 See [docs/prompt-templates.md](docs/prompt-templates.md) for copy-paste prompts.
+

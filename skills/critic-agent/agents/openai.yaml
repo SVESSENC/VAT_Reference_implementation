@@ -1,0 +1,4 @@
+interface:
+  display_name: "Critic Agent"
+  short_description: "Run strict PASS/FAIL quality gates with actionable findings."
+  default_prompt: "Use $critic-agent to critically review this change for correctness, risk, and release readiness with a PASS/FAIL verdict."

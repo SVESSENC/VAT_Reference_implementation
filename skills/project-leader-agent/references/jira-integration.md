@@ -56,6 +56,36 @@ Dry-run:
 py C:\Users\gusv\.codex\skills\project-leader-agent\scripts\jira_batch_update.py --plan-file .\jira-plan.json --dry-run
 ```
 
+## Start-Work Flow (pick ticket and launch execution brief)
+
+Use the start-flow script when beginning a session. It will:
+
+1. Pick a ticket (`--issue` or first Open via JQL)
+2. Infer module + owner agent
+3. Build a feature branch name
+4. Move ticket to `In Progress` and add a start comment
+5. Generate an agent-ready markdown brief
+
+Run:
+
+```powershell
+py .\skills\project-leader-agent\scripts\jira_start_flow.py --issue TC-10 --output .\.claude\prompts\jira-start-brief-TC-10.md
+```
+
+Auto-pick next Open ticket:
+
+```powershell
+py .\skills\project-leader-agent\scripts\jira_start_flow.py --output .\.claude\prompts\jira-start-brief.md
+```
+
+Dry-run:
+
+```powershell
+py .\skills\project-leader-agent\scripts\jira_start_flow.py --issue TC-10 --dry-run
+```
+
+Then start the selected owner agent using the generated brief in `.claude/prompts/`.
+
 ## Default transition map
 
 The script ships with this status-to-transition map:
