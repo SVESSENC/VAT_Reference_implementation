@@ -174,16 +174,93 @@ Batch script: `py C:\Users\gusv\.codex\skills\project-leader-agent\scripts\jira_
 
 ---
 
-## Agent Drift — What to Watch For
+## Agent Guardrails
 
-| Type | Warning Signs | Action |
-|------|--------------|--------|
-| **Field drift** | Field name differs from `data-contracts.md` — even by one character or casing | Reject output, repaste the contract, re-prompt |
-| **Scope drift** | Files created outside `/src/[module]`, imports from another module | Discard out-of-scope output entirely, do not commit |
-| **Logic drift** | VAT rate or rule not in `vat-rules.md`, a "sensible default" added | Compare every value against `vat-rules.md`; if not there, remove it |
-| **Feature drift** | Helpers, utilities, extra validation, refactors you didn't ask for | Delete unrequested additions before committing |
-| **Dependency drift** | New import or `package.json` entry you didn't request | Remove it; raise with team if genuinely needed |
-| **Guessing** | Agent uses confident language but value isn't in any doc | Ask: "What is the exact type of `vatRate` as defined in the data contracts?" If it can't answer, repaste and re-prompt |
+These are active constraints every agent must apply to its own output before completing a response. They are not a review checklist — they are self-enforcement rules.
+
+---
+
+### Guardrail 1 — Field Names Are Immutable
+
+Before outputting any field name, verify it character-for-character against `docs/data-contracts.md`.
+
+- `vatAmount` is correct. `vatamount`, `VatAmount`, `vat_amount` are all wrong.
+- `vatRate` must be a decimal (`0.20`), never a percentage integer (`20`).
+- If you are about to use a field name that is not in `data-contracts.md`, **stop**. Do not invent it. Flag it to the human and ask for clarification.
+
+**Self-check before output:** "Is every field name I have used present in `data-contracts.md`, exactly as written?"
+
+---
+
+### Guardrail 2 — Scope Is Hard-Bounded
+
+You may only create or modify files within your assigned module paths:
+
+| Module | Allowed paths |
+|--------|--------------|
+| engine | `/src/engine/**`, `/tests/engine/**` |
+| api | `/src/api/**`, `/tests/api/**` |
+| frontend | `/src/frontend/**` |
+| shared | `/src/shared/**` — only with explicit team sign-off |
+
+If completing the task requires touching a file outside these paths, **stop generating code**. State what you need and which path it would require. Do not proceed.
+
+**Self-check before output:** "Have I generated or modified any file outside my assigned paths?"
+
+---
+
+### Guardrail 3 — VAT Logic Must Be Documented
+
+You may only implement a VAT rule, rate, exemption, or behaviour that is explicitly present in `docs/vat-rules.md`.
+
+- Do not add a fallback rate "in case the lookup fails".
+- Do not handle a country or scenario that is not listed in the jurisdiction table.
+- Do not infer a rule from a comment, a test name, or context — only from the doc.
+
+If `vat-rules.md` does not cover the scenario you need, **stop**. Flag the gap to the human. Do not fill it with a reasonable-sounding assumption.
+
+**Self-check before output:** "Is every VAT value, rate, and conditional branch I have written traceable to a specific entry in `vat-rules.md`?"
+
+---
+
+### Guardrail 4 — Implement Only What Was Asked
+
+Your output must be limited to what was explicitly requested in the task.
+
+- Do not add helper functions, utilities, or abstractions that weren't asked for.
+- Do not refactor or rename existing code while implementing something new.
+- Do not add validation, error handling, or edge cases beyond the stated scope.
+- Do not leave TODO stubs or comments for things "you think might be needed next".
+
+If you find yourself writing something and thinking "this might be useful later" — delete it.
+
+**Self-check before output:** "Does every line I have written directly serve the task I was given?"
+
+---
+
+### Guardrail 5 — No New Dependencies
+
+Do not introduce any new package, library, or import that was not already present in the codebase.
+
+- Do not add entries to `package.json`, `requirements.txt`, or any equivalent file.
+- Do not import a module you have not been told is available.
+- If you need a dependency that isn't there, **stop**. Raise it with the team before writing code that depends on it.
+
+**Self-check before output:** "Have I introduced any import or dependency that did not exist before this task?"
+
+---
+
+### Guardrail 6 — Uncertainty Requires a Stop, Not a Guess
+
+If you are unsure about anything — a field name, a VAT rule, which file to edit, what already exists — you must stop and ask. Do not use confident language to paper over uncertainty.
+
+- "I'll assume…" is not acceptable.
+- "Typically this would be…" is not acceptable.
+- "I'll use a sensible default…" is not acceptable.
+
+State exactly what you are uncertain about and what information you need to proceed.
+
+**Self-check before output:** "Is there anything in my output I am not certain about? If yes, have I flagged it explicitly rather than guessing?"
 
 ---
 

@@ -9,10 +9,12 @@
 
 ## How to use these templates
 
-1. Open a fresh agent session
-2. Paste the **required context** files listed under each template
+1. Open a fresh agent session — context docs load automatically via `CLAUDE.md`
+2. Tell the agent its module: `"You are working on the [module] module"`
 3. Copy the template, fill in the `[PLACEHOLDERS]`, and send it
 4. Review all output before committing anything
+
+> **Note on "Auto-loaded" labels below:** docs marked as auto-loaded are imported by `CLAUDE.md` at session start — you do not need to paste them. Docs marked as "paste manually" must still be provided by you because they are not in the auto-load list.
 
 ---
 
@@ -28,7 +30,7 @@ This is your single most effective defence against agent drift. An agent that ha
 
 ## 1. Scaffold a new function in your module
 
-**Required context:** `docs/project-status.md`, `CHANGELOG.md [Unreleased]`, `docs/data-contracts.md`, `docs/architecture.md`
+**Context:** `project-status.md`, `CHANGELOG.md`, `data-contracts.md`, `architecture.md` — all auto-loaded
 
 ```
 You are working on the [engine | api | frontend] module of a VAT calculation application.
@@ -59,7 +61,7 @@ If you are uncertain about any field name, rule, or approach — stop and tell m
 
 ## 2. Write unit tests for an existing function
 
-**Required context:** `docs/project-status.md`, `docs/data-contracts.md`, `docs/vat-rules.md` (if engine)
+**Context:** `project-status.md`, `data-contracts.md`, `vat-rules.md` — all auto-loaded. **Paste manually:** the function code you want tested
 
 ```
 You are writing unit tests for the [engine | api] module of a VAT calculation application.
@@ -90,7 +92,7 @@ If you are uncertain about any field name, rule, or behaviour — stop and tell 
 
 ## 3. Add a VAT calculation rule to the engine
 
-**Required context:** `docs/project-status.md`, `CHANGELOG.md [Unreleased]`, `docs/data-contracts.md`, `docs/vat-rules.md`, `docs/architecture.md`
+**Context:** `project-status.md`, `CHANGELOG.md`, `data-contracts.md`, `vat-rules.md`, `architecture.md` — all auto-loaded. **Paste manually:** existing engine code for context
 
 ```
 You are working on the engine module of a VAT calculation application.
@@ -119,7 +121,7 @@ If you are uncertain about the rule, any field name, or edge cases not covered i
 
 ## 4. Add an API endpoint
 
-**Required context:** `docs/project-status.md`, `CHANGELOG.md [Unreleased]`, `docs/data-contracts.md`, `docs/architecture.md`
+**Context:** `project-status.md`, `CHANGELOG.md`, `data-contracts.md`, `architecture.md` — all auto-loaded. **Paste manually:** existing route/handler code for context
 
 ```
 You are working on the api module of a VAT calculation application.
@@ -148,7 +150,7 @@ If you are uncertain about the request/response shapes, routing patterns, or err
 
 ## 5. Explain a piece of existing code
 
-**Required context:** none required, but paste the relevant file
+**Context:** none required. **Paste manually:** the code you want explained
 
 ```
 Explain the following code from the [module] module of a VAT calculation application.
@@ -170,7 +172,7 @@ If any part of the code is genuinely ambiguous and you cannot explain it with co
 
 ## 6. Review AI-generated code before committing
 
-**Required context:** `docs/data-contracts.md`, `docs/vat-rules.md` (if engine code)
+**Context:** `data-contracts.md`, `vat-rules.md` — auto-loaded. **Paste manually:** the code to review
 
 ```
 Review the following AI-generated code for the [module] module of a VAT calculation application.
@@ -238,7 +240,7 @@ In docs/project-status.md:
 
 ## 9. Reviewer gate with Jira completion output
 
-**Required context:** `docs/project-status.md`, `docs/data-contracts.md`, `docs/vat-rules.md` (if engine), PR diff or changed files
+**Context:** `project-status.md`, `data-contracts.md`, `vat-rules.md` — auto-loaded. **Paste manually:** PR diff or list of changed files
 
 ```text
 You are acting as reviewer-agent for ticket [TC-XX].

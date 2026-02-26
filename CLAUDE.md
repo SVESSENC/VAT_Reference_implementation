@@ -31,6 +31,16 @@ Do not create or modify any file outside your assigned paths. If the task requir
 
 ---
 
+## Important — some docs are still TBD
+
+`docs/architecture.md` and `docs/vat-rules.md` are loaded automatically but are not yet filled in. If either is still marked TBD when you read it:
+
+- **Do not begin implementation tasks.** Tell the human these docs must be completed before you can proceed.
+- Do not infer or assume what the tech stack or VAT rules might be.
+- Do not treat TBD as a gap you should fill with a reasonable default.
+
+---
+
 ## Canonical sources of truth — follow them exactly, never deviate
 
 | Document | What it governs |
@@ -78,6 +88,7 @@ The following files are imported automatically into every Claude Code session �
 @docs/architecture.md
 @docs/data-contracts.md
 @docs/vat-rules.md
+@docs/agent-rules.md
 
 ---
 
