@@ -1,0 +1,60 @@
+{
+  "project_key": "TC",
+  "selection_jql": "project = TC AND status = Open ORDER BY priority DESC, updated ASC",
+  "worker_display_names": [
+    "Tomas Wind",
+    "Gustaf Svesse"
+  ],
+  "status_transition_ids": {
+    "In Progress": "181",
+    "Done": "151"
+  },
+  "commands": {
+    "implement": {
+      "primary": "claude -p \"Implement ticket {issue_key}: {issue_summary}\"",
+      "fallback": "codex \"Implement ticket {issue_key}: {issue_summary}\"",
+      "fallback_on_patterns": [
+        "hit your limit",
+        "usage limit",
+        "quota",
+        "rate limit",
+        "resets [0-9]"
+      ]
+    },
+    "review": {
+      "primary": "claude -p \"Review ticket {issue_key}. Respond PASS or FAIL only.\"",
+      "fallback": "codex \"Review ticket {issue_key}. Respond PASS or FAIL only.\"",
+      "fallback_on_patterns": [
+        "hit your limit",
+        "usage limit",
+        "quota",
+        "rate limit",
+        "resets [0-9]"
+      ]
+    }
+  },
+  "fallback_rules": {
+    "patterns": [
+      "hit your limit",
+      "usage limit",
+      "quota",
+      "rate limit",
+      "resets [0-9]"
+    ]
+  },
+  "review": {
+    "pass_pattern": "\\bPASS\\b",
+    "fail_pattern": "\\bFAIL\\b"
+  },
+  "comments": {
+    "start": "Auto manager started work on {issue_key} with {assignee_name} on {date}.",
+    "done": "Auto manager review PASS on {date}. Completed by {assignee_name}.",
+    "fail": "Auto manager review FAIL on {date}. Review output: {review_output}",
+    "implement_fail": "Auto manager implementation command failed on {date}. Output: {implement_output}"
+  },
+  "poll_seconds": 120,
+  "command_timeout_seconds": 1800,
+  "max_cycles": 0,
+  "state_file": ".auto-pm-state.json",
+  "lock_file": ".auto-pm.lock"
+}

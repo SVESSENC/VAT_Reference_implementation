@@ -1,0 +1,11 @@
+{
+  "architect-agent": "skills/architect-agent/SKILL.md",
+  "db-agent": "skills/db-agent/SKILL.md",
+  "designer-agent": "skills/designer-agent/SKILL.md",
+  "developer-agent": "skills/developer-agent/SKILL.md",
+  "project-leader-agent": "skills/project-leader-agent/SKILL.md",
+  "project-manager-agent": "skills/project-manager-agent/SKILL.md",
+  "review-agent": "skills/review-agent/SKILL.md",
+  "reviewer-agent": "skills/reviewer-agent/SKILL.md",
+  "vat-research-agent": "skills/vat-research-agent/SKILL.md"
+}

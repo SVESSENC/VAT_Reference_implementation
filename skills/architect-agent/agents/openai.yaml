@@ -1,0 +1,4 @@
+interface:
+  display_name: "Architect Agent"
+  short_description: "Design scalable system architecture and technical decisions."
+  default_prompt: "Use $architect-agent to propose architecture, trade-offs, APIs, and ADR-ready decisions for this project."

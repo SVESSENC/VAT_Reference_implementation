@@ -1,113 +1,121 @@
 # Jira Way of Working
 
-> How this team uses Jira — conventions, batching rules, and rate limit guidance.
-> Project: **testing claude** (key: `TC`) on datahubdev.atlassian.net
+> How this team uses Jira: conventions, batching rules, and rate limit guidance.
+> Project: **testing claude** (key: `TC`) on `datahubdev.atlassian.net`
 
 ---
 
-## Core principle: batch Jira updates, don't drip them
+## Core principle: batch Jira updates, do not drip them
 
-The Atlassian API is rate-limited. Making one API call per ticket update — especially when an agent or automation is running — will hit the limit quickly and block all subsequent calls.
+The Atlassian API is rate-limited. Single-call updates during active coding sessions are noisy and likely to hit limits.
 
-**Rule: collect all Jira changes for a session and apply them together at the end, not one-by-one as you go.**
+**Rule: collect Jira changes for a session and apply them in one batch at the end.**
 
 ---
 
 ## Batching pattern
 
 ### During a work session
-Do your work. Don't touch Jira. Keep a local scratch note of what needs updating:
+Do your work first. Keep a local note:
 
-```
-Jira updates to make at end of session:
-- TC-15 → Done
-- TC-13 → Done
-- TC-10 → In Progress
+```text
+Jira updates to apply at end of session:
+- TC-15 -> Done
+- TC-13 -> Done
+- TC-10 -> In Progress
 - TC-10: add comment "Started prompt-templates.md"
 ```
 
 ### At the end of the session
-Apply all updates in one block:
-1. Transition all tickets that changed status (Done, In Progress, etc.)
-2. Add comments to tickets where context is needed
-3. Do transitions before comments — if a transition fails, comments are less critical
+Apply updates in this order:
+1. Transitions (Done, In Progress, In Review, etc.)
+2. Comments
+3. If a transition fails, fix that first and rerun the batch
 
 ### Spacing
-Leave a few seconds between each API call. If you hit a 429, follow the exponential backoff guidance below — do not retry immediately.
+Leave a short delay between API calls. If you hit HTTP 429, use the backoff guidance below.
 
 ---
 
-## Handling rate limits (HTTP 429) — Atlassian official guidance
+## Handling rate limits (HTTP 429)
 
-When you receive a `429 Too Many Requests` response:
-
-1. **Check the response headers first** — `Retry-After` or `X-RateLimit-Reset` tells you exactly how long to wait. Use that value if present.
-
-2. **Use exponential backoff** if headers aren't available or the retry still 429s:
-   - Attempt 1 failed → wait **15s**
-   - Attempt 2 failed → wait **30s**
-   - Attempt 3 failed → wait **60s**
-   - Attempt 4 failed → wait **120s**
-   - After 4 failures: give up, note what still needs doing, complete it next session
-
-3. **Optimise queries** — avoid fetching the same data repeatedly. Cache transition IDs (see table below) so you don't need a lookup call before every transition. Pre-lookup transition IDs once per project, not once per ticket.
+When a request returns `429 Too Many Requests`:
+1. Prefer `Retry-After` or `X-RateLimit-Reset` headers if present.
+2. If needed, use exponential backoff:
+   - Attempt 1 failed -> wait `15s`
+   - Attempt 2 failed -> wait `30s`
+   - Attempt 3 failed -> wait `60s`
+   - Attempt 4 failed -> wait `120s`
+3. After 4 failures, stop and continue next session.
 
 ---
 
 ## Ticket lifecycle
 
-```
-Open → In Progress → In Review → Done
-                              ↘ Rejected
+```text
+Open -> In Progress -> In Review -> Done
+                           \-> Rejected
 ```
 
 | Status | When to use |
 |--------|-------------|
-| Open | Default — ticket not yet started |
-| In Progress | You have created a branch and are actively working on it |
-| In Review | PR is open and awaiting review |
-| Done | PR is merged to `dev`, work is complete |
-| Rejected | Task was descoped or not needed |
+| Open | Default: ticket not yet started |
+| In Progress | Branch created and active work started |
+| In Review | PR open and awaiting review |
+| Done | Review gate is PASS and work is complete (normally merged to `dev`) |
+| Rejected | Task descoped or no longer needed |
 
-**One ticket = one feature branch.** Move a ticket to In Progress when you create the branch, not before.
+**One ticket = one feature branch.** Move to `In Progress` when branch work starts.
+
+---
+
+## Reviewer gate -> Done rule
+
+For tickets that require formal review:
+1. Run `reviewer-agent` and get an explicit verdict (`PASS` or `FAIL`).
+2. If verdict is `PASS`, include the ticket in your batch plan with `to: "Done"`.
+3. Add a completion comment that references the review pass.
+4. Execute the batch script:
+   `py C:\Users\gusv\.codex\skills\project-leader-agent\scripts\jira_batch_update.py --plan-file .\jira-plan.local.json`
+
+If verdict is `FAIL`, do not move to `Done`. Keep it in `In Progress` or `In Review` and log follow-up fixes.
 
 ---
 
 ## What to put in ticket comments
 
 Add a comment when:
-- You move a ticket to Done — summarise what was built and where it lives
-- You move a ticket to In Progress — state the branch name
-- You discover a blocker — describe it so the team knows the ticket is stuck
-- You make a significant decision mid-task — log it here and in `docs/project-status.md`
+- You move a ticket to `Done`
+- You move a ticket to `In Progress`
+- You discover a blocker
+- You make a significant decision
 
-Keep comments short and factual. Other team members (and agents reading the backlog) need the key facts, not a narrative.
+Keep comments short and factual.
 
-**Comment template — moving to In Progress:**
-```
+**Comment template: moving to In Progress**
+```text
 Started on branch: feature/<name>
 Scope: [what this ticket covers]
 ```
 
-**Comment template — moving to Done:**
-```
-Completed on branch: feature/<name> → merged to dev
+**Comment template: moving to Done**
+```text
+Completed on branch: feature/<name> -> merged to dev
 Deliverable: [file path or feature description]
-Notes: [anything the team needs to know — e.g. "only covers EU jurisdictions, US TBD"]
+Review: reviewer-agent PASS [YYYY-MM-DD]
+Notes: [anything important for the team]
 ```
 
-**Comment template — blocker:**
-```
-Blocked: [description of blocker]
-Needs: [what's required to unblock]
-Raised: [date]
+**Comment template: blocker**
+```text
+Blocked: [description]
+Needs: [what unblocks it]
+Raised: [YYYY-MM-DD]
 ```
 
 ---
 
-## Transition IDs (datahubdev TC project)
-
-Use these when calling the Atlassian API to avoid an extra round-trip for the transitions list:
+## Transition IDs (TC project)
 
 | Transition | ID |
 |-----------|-----|
@@ -122,21 +130,18 @@ Use these when calling the Atlassian API to avoid an extra round-trip for the tr
 
 ## End-of-session Jira checklist
 
-Before closing your work session:
-
-```
-[ ] All completed tickets transitioned to Done
-[ ] Active ticket transitioned to In Progress (if mid-task) or In Review (if PR open)
-[ ] Comments added to Done tickets summarising what was built
-[ ] Blocker comments added if anything is stuck
-[ ] All transitions applied in one batch, not one-by-one during work
+```text
+[ ] Reviewer verdict captured for tickets under review
+[ ] PASS tickets transitioned to Done
+[ ] Active ticket transitioned to In Progress or In Review
+[ ] Comments added to Done tickets
+[ ] Blockers documented
+[ ] Updates applied in one batch
 ```
 
 ---
 
-## Ticket → branch → PR naming
-
-Keep naming consistent so tickets, branches, and PRs are easy to correlate.
+## Ticket -> branch -> PR naming
 
 | Ticket | Branch | PR title |
 |--------|--------|---------|
@@ -144,13 +149,13 @@ Keep naming consistent so tickets, branches, and PRs are easy to correlate.
 | TC-18 | `feature/TC-18-vat-engine-core` | `feat: build core VAT calculation engine (TC-18)` |
 | TC-12 | `feature/TC-12-vat-rules-doc` | `docs: document VAT rules and jurisdictions (TC-12)` |
 
-Include the ticket number in the branch name and PR title. This makes it trivial to find the related ticket when reviewing a PR or commit.
+Include the ticket number in branch and PR names.
 
 ---
 
-## What agents should not do with Jira
+## Jira automation boundaries
 
-- Do not ask an agent to make Jira API calls directly
-- Do not ask an agent to decide which tickets to move or close
-- Do not let an agent write ticket comments — you write them, based on what the agent produced
-- Agents work in code. Jira updates are a human responsibility done at session end
+- Do not make ad-hoc Jira API calls during implementation.
+- Do not let random coding agents decide transitions.
+- Allowed: `project-leader-agent` applies a prepared batch plan.
+- Allowed: `reviewer-agent` verdict can trigger Done in that batch plan.

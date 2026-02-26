@@ -1,4 +1,4 @@
-# Contributing to VAT Reference Implementation
+﻿# Contributing to VAT Reference Implementation
 
 ---
 
@@ -59,7 +59,7 @@ When using Claude, ChatGPT, or any AI assistant to generate code, follow these r
 
 2. **Always paste `docs/data-contracts.md` into the agent session** before generating any engine or API code. The agent must understand the agreed data shapes before writing anything.
 
-3. **Always paste `docs/vat-rules.md` into the agent session** when working on calculation logic. VAT rules are the source of truth — the agent must follow them exactly.
+3. **Always paste `docs/vat-rules.md` into the agent session** when working on calculation logic. VAT rules are the source of truth â€” the agent must follow them exactly.
 
 4. **Never commit AI-generated code without reviewing it.** Read every line. Verify it matches the data contracts, VAT rules, and existing patterns in the codebase.
 
@@ -73,11 +73,12 @@ When using Claude, ChatGPT, or any AI assistant to generate code, follow these r
 
 Before marking a PR as ready for review, confirm all of the following:
 
-- [ ] Code is scoped to my module only — no unintended changes to other modules
+- [ ] Code is scoped to my module only â€” no unintended changes to other modules
 - [ ] All AI-generated code has been read and reviewed line by line
 - [ ] All tests pass locally
 - [ ] Documentation has been updated if behaviour has changed
 - [ ] No changes to `/src/shared` without prior team approval
 - [ ] PR targets `dev`, not `main`
 - [ ] PR template is fully filled in
-- [ ] Jira ticket transitioned to In Review (batch with any other Jira updates — see [docs/jira-workflow.md](docs/jira-workflow.md))
+- [ ] Jira ticket transitioned to In Review (batch with any other Jira updates â€” see [docs/jira-workflow.md](docs/jira-workflow.md))
+- [ ] Reviewer verdict captured (PASS/FAIL), and PASS tickets moved to Done via batched Jira update

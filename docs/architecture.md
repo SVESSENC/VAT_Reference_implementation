@@ -45,7 +45,7 @@ _Replace with actual architecture once agreed._
 > TBD — describe the UI layer and how it communicates with the API.
 
 ### Shared (`/src/shared`)
-> TBD — describe shared types, constants, and utilities. Changes here require team sign-off.
+> TBD — describe shared types, constants, and utilities. Changefs here require team sign-off.
 
 ---
 

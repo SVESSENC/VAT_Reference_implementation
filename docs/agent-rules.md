@@ -17,12 +17,7 @@
    git checkout -b feature/<your-task-name>
    ```
 
-2. **Paste the full content of these files into your agent context — in this order:**
-   - `docs/project-status.md` — **first, always** — tells the agent what already exists
-   - `CHANGELOG.md` (Unreleased section + last 2–3 entries) — recent changes and conventions
-   - `docs/architecture.md` — system design
-   - `docs/data-contracts.md` — all input/output shapes
-   - `docs/vat-rules.md` — if working on engine/calculation logic
+2. **Context docs are loaded automatically.** `CLAUDE.md` imports `project-status.md`, `CHANGELOG.md`, `architecture.md`, `data-contracts.md`, and `vat-rules.md` on every session start — no pasting required.
 
 3. **Tell the agent your module.** Start every session with:
    > "You are working on the `[engine | api | frontend | shared]` module of a VAT calculation application. Your scope is limited to `/src/[module]` and `/tests/[module]`."
@@ -116,11 +111,6 @@ Before every agent session:
 [ ] Pulled latest dev
 [ ] Created a feature branch
 [ ] Read docs/project-status.md — know what's built and what's in progress
-[ ] Pasted docs/project-status.md into agent context
-[ ] Pasted CHANGELOG.md [Unreleased] section into agent context
-[ ] Pasted docs/architecture.md into agent context
-[ ] Pasted docs/data-contracts.md into agent context
-[ ] Pasted docs/vat-rules.md (if touching engine)
 [ ] Told the agent its module and scope
 [ ] Have a single, focused task ready
 
@@ -132,7 +122,63 @@ Before opening a PR:
 
 ---
 
-## 8. What Agents Must Never Do
+## 8. Recognising Agent Drift — Warning Signs
+
+Drift rarely announces itself. It usually looks like reasonable-seeming code that quietly violates a constraint you didn't notice until review. Know what to look for.
+
+### Field and naming drift
+
+- A field name that differs from `docs/data-contracts.md` — even by one character or casing (`vatamount` vs `vatAmount`)
+- A new field in an output object that isn't in the data contract
+- A type mismatch — e.g. `vatRate` returned as a percentage integer (`20`) instead of a decimal (`0.20`)
+
+**What to do:** Reject the output. Repaste the exact field definition from `docs/data-contracts.md` and re-prompt.
+
+### Scope drift
+
+- Files created or modified outside `/src/[your-module]` or `/tests/[your-module]`
+- An import from another module the agent added "for convenience"
+- A change to `/src/shared` you didn't ask for
+- Any modification to a file in `docs/` — agents must never touch docs
+
+**What to do:** Discard the out-of-scope output entirely. Do not commit it. Re-prompt with an explicit scope reminder.
+
+### Logic drift
+
+- A VAT rate, exemption, or rule not in `docs/vat-rules.md`
+- A conditional branch handling a country or scenario not in scope
+- The agent adding a "sensible default" (e.g. a fallback VAT rate) you didn't ask for
+
+**What to do:** Compare every VAT-related value against `docs/vat-rules.md`. If it isn't documented there, it must not be in the code.
+
+### Feature drift
+
+- Helper functions, utilities, or abstractions you didn't request
+- Additional validation, error cases, or edge case handling beyond what you described
+- Refactored or renamed existing functions the agent decided were "cleaner"
+- TODO stubs or comments for features "the agent thought you'd want next"
+- The agent saying "I also added…" or "while I was at it…"
+
+**What to do:** Delete the unrequested additions before committing. Accepting unrequested additions once teaches the agent that expanding scope is acceptable.
+
+### Dependency drift
+
+- A new `import` or `require` for a package you didn't ask for
+- A new entry in `package.json`, `requirements.txt`, or equivalent
+
+**What to do:** Remove it. If the dependency is genuinely needed, raise it with the team first.
+
+### Signs the agent is guessing (not following the docs)
+
+- The agent uses confident language but the value it produced isn't in any of your docs
+- Slightly different field names appear across turns in the same session
+- The agent answers a question about an existing function without having seen the code
+
+**What to do:** Test it. Ask the agent directly: "What is the exact type of `vatRate` as defined in the data contracts I pasted?" If it can't repeat it back accurately, repaste the doc and re-prompt from scratch.
+
+---
+
+## 9. What Agents Must Never Do
 
 Regardless of how the prompt is written, never accept or commit agent output that:
 
@@ -144,3 +190,17 @@ Regardless of how the prompt is written, never accept or commit agent output tha
 - Updates `docs/project-status.md` or `CHANGELOG.md` autonomously — the human writes these, not the agent
 - Pushes to `main` directly
 - Suggests force-pushing or rewriting git history
+
+---
+
+## 10. Reviewer Gate Completion Rule
+
+Use this rule to close tickets consistently:
+
+1. Run a `reviewer-agent` check with explicit verdict output: `PASS` or `FAIL`.
+2. If verdict is `PASS`, queue the ticket for Jira transition to `Done` in `jira-plan.local.json`.
+3. Add a completion comment that includes review pass evidence.
+4. Apply updates in one batch using:
+   `py C:\Users\gusv\.codex\skills\project-leader-agent\scripts\jira_batch_update.py --plan-file .\jira-plan.local.json`
+
+If verdict is `FAIL`, do not move the ticket to `Done`. Keep it in `In Progress` or `In Review` and create follow-up tasks for findings.

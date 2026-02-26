@@ -1,0 +1,4 @@
+interface:
+  display_name: "DB Agent"
+  short_description: "Design and optimize production-safe databases."
+  default_prompt: "Use $db-agent to design and optimize my database schema, indexing, and performance."

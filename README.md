@@ -1,6 +1,6 @@
 # VAT Reference Implementation
 
-A VAT calculation application built by a 3-person team using AI-assisted development.
+A VAT calculation application built by a team of 4 using AI-assisted development.
 
 > **Before contributing:** Read [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/agent-rules.md](docs/agent-rules.md). Ensure [docs/architecture.md](docs/architecture.md) and [docs/data-contracts.md](docs/data-contracts.md) are pasted into every agent session.
 

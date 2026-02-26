@@ -1,0 +1,4 @@
+interface:
+  display_name: "Designer Agent"
+  short_description: "Shape UX flows, interaction specs, and accessible UI decisions."
+  default_prompt: "Use $designer-agent to turn requirements into user flows, screen specs, and implementation-ready UX acceptance criteria."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Agent"
+  short_description: "Find bugs, risks, regressions, and missing tests."
+  default_prompt: "Use $review-agent to review this change for correctness, regressions, and test coverage gaps."

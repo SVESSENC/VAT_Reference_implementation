@@ -16,6 +16,16 @@
 
 ---
 
+## Standing rule — applies to every template below
+
+> Add this line to the end of every prompt you send, without exception:
+>
+> **"If you are uncertain about any field name, VAT rule, tech stack choice, or whether something already exists — stop and tell me rather than guessing. Do not invent answers to fill gaps."**
+
+This is your single most effective defence against agent drift. An agent that halts and asks is always better than one that silently invents.
+
+---
+
 ## 1. Scaffold a new function in your module
 
 **Required context:** `docs/project-status.md`, `CHANGELOG.md [Unreleased]`, `docs/data-contracts.md`, `docs/architecture.md`
@@ -41,6 +51,8 @@ Existing related code for context:
 [paste relevant existing functions or types here]
 
 Write the function only. Do not generate tests yet.
+
+If you are uncertain about any field name, rule, or approach — stop and tell me rather than guessing.
 ```
 
 ---
@@ -70,6 +82,8 @@ Rules:
 - Do not modify the function under test
 
 Return only the test file content.
+
+If you are uncertain about any field name, rule, or behaviour — stop and tell me rather than guessing.
 ```
 
 ---
@@ -97,6 +111,8 @@ Existing engine code for context:
 
 Implement only this rule. Do not refactor existing code.
 Return the implementation and the corresponding unit tests separately.
+
+If you are uncertain about the rule, any field name, or edge cases not covered in vat-rules.md — stop and tell me rather than guessing.
 ```
 
 ---
@@ -124,6 +140,8 @@ Use the existing routing and middleware patterns in the api module (shown below)
 [paste existing route/handler code]
 
 Return the route handler and a basic integration test. Do not generate OpenAPI docs yet.
+
+If you are uncertain about the request/response shapes, routing patterns, or error handling — stop and tell me rather than guessing.
 ```
 
 ---
@@ -144,6 +162,8 @@ Tell me:
 4. Anything that looks risky or unclear
 
 Do not suggest improvements. Just explain.
+
+If any part of the code is genuinely ambiguous and you cannot explain it with confidence — say so rather than guessing at intent.
 ```
 
 ---
@@ -165,6 +185,8 @@ Check for:
 5. Obvious bugs — off-by-one, null handling, type mismatches
 
 Return a bullet list of findings only. Do not rewrite the code.
+
+If you are uncertain whether something is a genuine issue or just unfamiliar to you — say so explicitly rather than flagging it as a definite problem.
 ```
 
 ---
@@ -210,4 +232,47 @@ In docs/project-status.md:
 - `[path/to/file]` — [what changed and why]
 - `[path/to/file]` — [what changed and why]
 **Notes:** [anything the next person needs to know — field renames, new dependencies, behaviour changes]
+```
+
+---
+
+## 9. Reviewer gate with Jira completion output
+
+**Required context:** `docs/project-status.md`, `docs/data-contracts.md`, `docs/vat-rules.md` (if engine), PR diff or changed files
+
+```text
+You are acting as reviewer-agent for ticket [TC-XX].
+
+Review scope:
+- Files changed: [list]
+- Ticket objective: [one sentence]
+- Acceptance criteria: [list]
+
+Return exactly these sections:
+1. Verdict: PASS or FAIL
+2. Findings: bullet list (empty if PASS)
+3. Jira Plan Snippet (JSON):
+   - If PASS: include a move to Done and a completion comment
+   - If FAIL: include a comment only, no move to Done
+
+Output format:
+Verdict: [PASS|FAIL]
+Findings:
+- ...
+Jira Plan Snippet:
+{
+  "moves": [
+    { "issue": "[TC-XX]", "to": "Done" }
+  ],
+  "comments": [
+    {
+      "issue": "[TC-XX]",
+      "body": "Review: reviewer-agent PASS [YYYY-MM-DD]\\nDeliverable: [summary]\\nNotes: [optional]"
+    }
+  ]
+}
+
+Rules:
+- Do not guess. If evidence is missing, return FAIL and list what is missing.
+- If there is any correctness or security risk, return FAIL.
 ```
