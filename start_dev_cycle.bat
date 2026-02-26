@@ -7,7 +7,7 @@ set "LOG_DIR=logs"
 if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
 
 for /f %%I in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd-HHmmss"') do set "TS=%%I"
-set "LOG_FILE=%LOG_DIR%\dev-cycle-%TS%.log"
+set "LOG_FILE=%LOG_DIR%\dev-cycle-%TS%-%RANDOM%.log"
 set "OUTPUT_FILE=.claude\prompts\jira-start-brief.md"
 set "METADATA_FILE=.claude\prompts\jira-start-brief.json"
 
@@ -195,6 +195,7 @@ if defined DRY_RUN_ARG (
     )
 
     set "JIRA_PLAN=.claude\prompts\jira-auto-close-!ISSUE!.json"
+    set "FINAL_STATUS=In Review"
     if /I "!PASS_REACHED!"=="1" (
       > "!JIRA_PLAN!" echo {
       >>"!JIRA_PLAN!" echo   "moves": [
@@ -205,6 +206,7 @@ if defined DRY_RUN_ARG (
       >>"!JIRA_PLAN!" echo   ]
       >>"!JIRA_PLAN!" echo }
       call :log "[INFO] Applying Jira close plan Done for !ISSUE!."
+      set "FINAL_STATUS=Done"
     ) else (
       > "!JIRA_PLAN!" echo {
       >>"!JIRA_PLAN!" echo   "moves": [
@@ -220,6 +222,25 @@ if defined DRY_RUN_ARG (
     call :run_and_log py .\skills\project-leader-agent\scripts\jira_batch_update.py --plan-file !JIRA_PLAN!
     if errorlevel 1 (
       call :log "[ERROR] Jira auto-transition failed."
+      exit /b 1
+    )
+
+    set "REPORT_DIR=finished-tickets"
+    set "REPORT_FILE=!REPORT_DIR!\!ISSUE!.md"
+    set "ROADMAP_FILE=!REPORT_DIR!\ROADMAP.md"
+    if not exist "!REPORT_DIR!" mkdir "!REPORT_DIR!"
+
+    call :log "[INFO] Writing ticket report markdown: !REPORT_FILE!"
+    call :run_and_log powershell -NoProfile -Command "$issue='!ISSUE!'; $branch='!BRANCH!'; $module='!MODULE!'; $owner='!OWNER_AGENT!'; $status='!FINAL_STATUS!'; $verdict='!REVIEW_VERDICT!'; $log='!LOG_FILE!'; $review=''; if(Test-Path '!REVIEW_RESULT!'){ $review = Get-Content -Raw '!REVIEW_RESULT!' }; $changes = git status --short; if(-not $changes){ $changes='(no local changes)' }; $md = @(); $md += '# ' + $issue + ' - Cycle Report'; $md += ''; $md += '- Date: ' + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'); $md += '- Branch: `' + $branch + '`'; $md += '- Module: `' + $module + '`'; $md += '- Owner Agent: `' + $owner + '`'; $md += '- Reviewer Verdict: `' + $verdict + '`'; $md += '- Jira Status Applied: `' + $status + '`'; $md += '- Log File: `' + $log + '`'; $md += ''; $md += '## Implementation Summary'; $md += '- Automated cycle executed for ' + $issue + '.'; $md += '- See changed files and review findings below.'; $md += ''; $md += '## Changed Files Snapshot'; $md += '```text'; $md += $changes; $md += '```'; $md += ''; $md += '## Reviewer Comments'; $md += '```text'; if([string]::IsNullOrWhiteSpace($review)){ $md += '(no reviewer output captured)'} else { $md += $review.TrimEnd() }; $md += '```'; Set-Content -Path '!REPORT_FILE!' -Value ($md -join [Environment]::NewLine)"
+    if errorlevel 1 (
+      call :log "[ERROR] Failed writing ticket report markdown."
+      exit /b 1
+    )
+
+    call :log "[INFO] Updating roadmap checklist: !ROADMAP_FILE!"
+    call :run_and_log powershell -NoProfile -Command "$issue='!ISSUE!'; $status='!FINAL_STATUS!'; $branch='!BRANCH!'; $check = if($status -eq 'Done'){ '[x]' } else { '[ ]' }; $line = '- ' + $check + ' ' + $issue + ' - ' + $status + ' - ' + $branch; if(-not (Test-Path '!ROADMAP_FILE!')){ Set-Content -Path '!ROADMAP_FILE!' -Value @('# Ticket Roadmap','','- [ ] TEMPLATE - status - branch') }; $rows = Get-Content '!ROADMAP_FILE!'; $updated = $false; for($i=0; $i -lt $rows.Count; $i++){ if($rows[$i] -match ('^- \\[[ x]\\] ' + [regex]::Escape($issue) + '\\b')){ $rows[$i] = $line; $updated = $true } }; if(-not $updated){ $rows += $line }; Set-Content -Path '!ROADMAP_FILE!' -Value $rows"
+    if errorlevel 1 (
+      call :log "[ERROR] Failed updating roadmap checklist."
       exit /b 1
     )
   ) else (
