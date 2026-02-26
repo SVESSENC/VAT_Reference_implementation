@@ -180,7 +180,7 @@ if defined DRY_RUN_ARG (
         )
 
         set "REVIEW_VERDICT=UNKNOWN"
-        for /f "usebackq delims=" %%V in (`powershell -NoProfile -Command "$t=Get-Content -Raw '!REVIEW_RESULT!'; if($t -match '(?im)^\\s*PASS\\b'){ 'PASS' } elseif($t -match '(?im)^\\s*FAIL\\b'){ 'FAIL' } else { 'UNKNOWN' }"`) do set "REVIEW_VERDICT=%%V"
+        for /f "usebackq delims=" %%V in (`powershell -NoProfile -Command "$l=Get-Content -Path '!REVIEW_RESULT!' | Where-Object { $_.Trim() -ne '' } | Select-Object -First 1; if($null -eq $l){ 'UNKNOWN' } elseif($l.Trim().ToUpper().StartsWith('PASS')){ 'PASS' } elseif($l.Trim().ToUpper().StartsWith('FAIL')){ 'FAIL' } else { 'UNKNOWN' }"`) do set "REVIEW_VERDICT=%%V"
         call :log "[INFO] Reviewer verdict: !REVIEW_VERDICT!"
 
         if /I "!REVIEW_VERDICT!"=="PASS" set "PASS_REACHED=1"
