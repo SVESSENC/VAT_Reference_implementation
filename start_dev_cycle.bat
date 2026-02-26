@@ -164,8 +164,15 @@ if defined DRY_RUN_ARG (
           call :log "[INFO] Starting owner agent run via codex exec ; cycle %%R/!MAX_REVIEW_CYCLES!."
           call :run_and_log codex -C "%CD%" exec --dangerously-bypass-approvals-and-sandbox "Read .claude\\prompts\\active-session-!ISSUE!.md and .claude\\prompts\\jira-start-brief.md from the repository, then start working on the ticket now."
         ) else (
+          set "RETRY_PROMPT=.claude\prompts\retry-fix-!ISSUE!.md"
+          > "!RETRY_PROMPT!" echo Ticket !ISSUE! failed reviewer gate.
+          >>"!RETRY_PROMPT!" echo You must fix all findings below before the next review.
+          >>"!RETRY_PROMPT!" echo.
+          >>"!RETRY_PROMPT!" echo Reviewer findings:
+          >>"!RETRY_PROMPT!" echo -----------------
+          type "!REVIEW_RESULT!" >> "!RETRY_PROMPT!"
           call :log "[INFO] Re-running owner agent after review FAIL ; cycle %%R/!MAX_REVIEW_CYCLES!."
-          call :run_and_log codex -C "%CD%" exec --dangerously-bypass-approvals-and-sandbox "Ticket !ISSUE! failed review. Read !REVIEW_RESULT! and fix all findings now, then update code accordingly."
+          call :run_and_log codex -C "%CD%" exec --dangerously-bypass-approvals-and-sandbox "You are developer-agent. Read !RETRY_PROMPT!, fix every reviewer finding in repo code, and keep changes within the ticket scope."
         )
         if errorlevel 1 (
           call :log "[ERROR] Owner agent run failed."
