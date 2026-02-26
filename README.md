@@ -41,6 +41,7 @@ A VAT calculation application built by a 3-person team using AI-assisted develop
 
 4. **Read the docs before writing any code**
    - [docs/agent-rules.md](docs/agent-rules.md) — **start here** — rules for working with AI agents
+   - [docs/prompt-templates.md](docs/prompt-templates.md) — copy-paste prompts for common tasks
    - [docs/architecture.md](docs/architecture.md) — system design and tech decisions
    - [docs/vat-rules.md](docs/vat-rules.md) — VAT logic source of truth
    - [docs/data-contracts.md](docs/data-contracts.md) — all data shapes
