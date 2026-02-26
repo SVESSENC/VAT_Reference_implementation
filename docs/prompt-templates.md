@@ -238,6 +238,30 @@ In docs/project-status.md:
 
 ---
 
+## 10. Session bootstrap — pick next Jira ticket and run full cycle
+
+**Context:** all docs auto-loaded. No manual paste needed.
+
+```
+Run the session auto-start loop from CLAUDE.md:
+
+1. Search Jira: project = TC AND status = "Open" ORDER BY priority DESC, created ASC — take the first result.
+2. Read the full ticket: summary, description, acceptance criteria.
+3. Infer the module (engine / api / frontend / shared). If unclear, ask me.
+4. Announce the ticket and module. Move it to In Progress via Jira MCP (transition ID 181). Add an In Progress comment.
+5. Implement the work within the module boundary. Apply all guardrails from agent-rules.md.
+6. Run the reviewer gate. Produce a PASS or FAIL verdict.
+7. If PASS: transition to Done (transition ID 151), add completion comment, report back to me.
+   If FAIL: transition to In Review (transition ID 211), list findings, do not close the ticket.
+
+Stop at any point and ask me if:
+- architecture.md or vat-rules.md are still TBD
+- the module is shared (needs team sign-off)
+- the ticket description is too vague to act on safely
+```
+
+---
+
 ## 9. Reviewer gate with Jira completion output
 
 **Context:** `project-status.md`, `data-contracts.md`, `vat-rules.md` — auto-loaded. **Paste manually:** PR diff or list of changed files

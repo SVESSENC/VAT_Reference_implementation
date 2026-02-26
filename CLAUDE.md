@@ -92,6 +92,65 @@ The following files are imported automatically into every Claude Code session �
 
 ---
 
+## Session auto-start
+
+If the human starts a session without giving you a specific task, run this loop automatically:
+
+### Step 1 — Pick the next ticket
+Search Jira for the next available ticket:
+- Project: `TC`
+- JQL: `project = TC AND status = "Open" ORDER BY priority DESC, created ASC`
+- Take the first result only.
+- Read the ticket summary, description, and acceptance criteria in full.
+
+### Step 2 — Infer the module
+Determine the module from the ticket content:
+
+| Ticket keywords | Module |
+|----------------|--------|
+| engine, VAT logic, calculation, jurisdiction, rate, exemption, reverse charge | `engine` |
+| API, endpoint, route, request, validation, REST | `api` |
+| frontend, UI, form, component, display | `frontend` |
+| shared types, constants, VatInput, VatOutput | `shared` — **stop and confirm with human before proceeding** |
+| unclear | **stop and ask** |
+
+### Step 3 — Announce and branch
+Tell the human:
+> "Picking up [TC-XX]: [title]. Module: [module]. Creating branch `feature/TC-XX-<slug>` and moving to In Progress."
+
+Then use the Atlassian MCP to transition the ticket to **In Progress** (transition ID: `181`) and add a comment:
+```
+Started on branch: feature/TC-XX-<slug>
+Scope: [one line from ticket description]
+```
+
+### Step 4 — Implement
+Work within the module boundaries defined above. Apply all guardrails from `docs/agent-rules.md` section 11. If `docs/architecture.md` or `docs/vat-rules.md` are still TBD, stop and tell the human before writing any code.
+
+### Step 5 — Reviewer gate
+Run the self-review defined in `docs/agent-rules.md` section 10. Produce an explicit verdict: `PASS` or `FAIL`.
+
+### Step 6 — Close or escalate
+
+**If PASS:**
+Use the Atlassian MCP to:
+1. Transition the ticket to **Done** (transition ID: `151`)
+2. Add a completion comment:
+```
+Completed on branch: feature/TC-XX-<slug>
+Deliverable: [file path or feature summary]
+Review: reviewer-agent PASS [YYYY-MM-DD]
+```
+Then report to the human: what was built, what files changed, anything they need to review before committing.
+
+**If FAIL:**
+- Transition to **In Review** (transition ID: `211`)
+- Add a comment listing each finding
+- Do NOT move to Done
+- Tell the human what failed and what needs to be fixed before closure
+
+---
+
 ## Full rules
 
 See [docs/agent-rules.md](docs/agent-rules.md) for the complete team workflow.

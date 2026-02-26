@@ -29,3 +29,5 @@ coverage/
 
 # Editor
 .vscode/settings.json
+
+overview_vat/_git_metadata/
