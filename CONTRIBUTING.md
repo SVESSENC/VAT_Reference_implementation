@@ -80,3 +80,4 @@ Before marking a PR as ready for review, confirm all of the following:
 - [ ] No changes to `/src/shared` without prior team approval
 - [ ] PR targets `dev`, not `main`
 - [ ] PR template is fully filled in
+- [ ] Jira ticket transitioned to In Review (batch with any other Jira updates — see [docs/jira-workflow.md](docs/jira-workflow.md))

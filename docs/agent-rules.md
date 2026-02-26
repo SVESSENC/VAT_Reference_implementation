@@ -105,6 +105,7 @@ Because each agent works independently with no shared state, conflicts are inevi
   - Check the "AI-generated code" box in the PR template.
   - Confirm in the PR description which docs were pasted into the agent session.
   - Describe what the agent was asked to do and what you changed after review.
+- **Jira updates happen at end of session, in a batch — not during work.** See [docs/jira-workflow.md](jira-workflow.md) for the batching pattern and transition IDs.
 
 ---
 
