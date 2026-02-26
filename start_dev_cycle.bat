@@ -123,6 +123,29 @@ if defined DRY_RUN_ARG (
       exit /b 1
     )
   )
+
+  set "PR_BASE=dev"
+  set "PR_TITLE=feat: !ISSUE! automated cycle"
+  set "PR_BODY=Auto-created by start_dev_cycle.bat for !ISSUE!."
+  call :log "[INFO] Ensuring PR exists for !BRANCH! -> !PR_BASE!."
+  where gh >nul 2>&1
+  if !errorlevel! equ 0 (
+    call :run_and_log gh pr view --head !BRANCH! --base !PR_BASE!
+    if errorlevel 1 (
+      call :run_and_log gh pr create --base !PR_BASE! --head !BRANCH! --title "!PR_TITLE!" --body "!PR_BODY!"
+      if errorlevel 1 (
+        call :log "[WARN] Could not auto-create PR with gh."
+      )
+    ) else (
+      call :log "[INFO] PR already exists for branch !BRANCH!."
+    )
+  ) else (
+    for /f "usebackq delims=" %%U in (`powershell -NoProfile -Command "$u=(git remote get-url origin).Trim(); if($u -match 'github.com[:/](.+)$'){ $p=($Matches[1] -replace '\\.git$',''); 'https://github.com/' + $p + '/compare/!PR_BASE!...!BRANCH!?expand=1' }"`) do set "PR_URL=%%U"
+    if defined PR_URL (
+      call :log "[WARN] Auto PR skipped. Install/auth gh CLI to enable automatic creation."
+      call :log "[INFO] PR create URL: !PR_URL!"
+    )
+  )
 )
 
 set "SKILLS=!OWNER_AGENT!,reviewer-agent"
