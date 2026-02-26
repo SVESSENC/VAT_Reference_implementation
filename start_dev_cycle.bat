@@ -173,7 +173,7 @@ if defined DRY_RUN_ARG (
         )
 
         call :log "[INFO] Running reviewer pass/fail check."
-        call :run_and_log codex -C "%CD%" exec review --dangerously-bypass-approvals-and-sandbox -o !REVIEW_RESULT! "Review ticket !ISSUE! changes. Start with PASS or FAIL on first line."
+        call :run_and_log codex -C "%CD%" exec --dangerously-bypass-approvals-and-sandbox -o !REVIEW_RESULT! "You are review-agent. Review ticket !ISSUE! changes in this repo. Respond with PASS or FAIL on the first line, then concise findings."
         if errorlevel 1 (
           call :log "[ERROR] Reviewer agent run failed."
           exit /b 1
