@@ -161,10 +161,10 @@ if defined DRY_RUN_ARG (
         rem PASS already reached; skip remaining cycles.
       ) else (
         if "%%R"=="1" (
-          call :log "[INFO] Starting owner agent run via codex exec (cycle %%R/!MAX_REVIEW_CYCLES!)."
+          call :log "[INFO] Starting owner agent run via codex exec ; cycle %%R/!MAX_REVIEW_CYCLES!."
           call :run_and_log codex -C "%CD%" exec --dangerously-bypass-approvals-and-sandbox "Read .claude\\prompts\\active-session-!ISSUE!.md and .claude\\prompts\\jira-start-brief.md from the repository, then start working on the ticket now."
         ) else (
-          call :log "[INFO] Re-running owner agent after review FAIL (cycle %%R/!MAX_REVIEW_CYCLES!)."
+          call :log "[INFO] Re-running owner agent after review FAIL ; cycle %%R/!MAX_REVIEW_CYCLES!."
           call :run_and_log codex -C "%CD%" exec --dangerously-bypass-approvals-and-sandbox "Ticket !ISSUE! failed review. Read !REVIEW_RESULT! and fix all findings now, then update code accordingly."
         )
         if errorlevel 1 (
