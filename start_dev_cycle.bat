@@ -152,9 +152,50 @@ if defined DRY_RUN_ARG (
       exit /b 1
     )
     call :log "[INFO] Starting owner agent run via codex exec."
-    call :run_and_log codex exec --dangerously-bypass-approvals-and-sandbox -C "%CD%" "Read .claude\\prompts\\active-session-!ISSUE!.md and .claude\\prompts\\jira-start-brief.md from the repository, then start working on the ticket now."
+    call :run_and_log codex -C "%CD%" exec --dangerously-bypass-approvals-and-sandbox "Read .claude\\prompts\\active-session-!ISSUE!.md and .claude\\prompts\\jira-start-brief.md from the repository, then start working on the ticket now."
     if errorlevel 1 (
       call :log "[ERROR] Owner agent run failed."
+      exit /b 1
+    )
+
+    set "REVIEW_RESULT=.claude\prompts\review-result-!ISSUE!.txt"
+    call :log "[INFO] Running reviewer pass/fail check."
+    call :run_and_log codex -C "%CD%" exec --dangerously-bypass-approvals-and-sandbox -o !REVIEW_RESULT! "Review this repository for ticket !ISSUE!. Respond with PASS or FAIL on the first line, then concise findings."
+    if errorlevel 1 (
+      call :log "[ERROR] Reviewer agent run failed."
+      exit /b 1
+    )
+
+    set "REVIEW_VERDICT=UNKNOWN"
+    for /f "usebackq delims=" %%V in (`powershell -NoProfile -Command "$t=Get-Content -Raw '!REVIEW_RESULT!'; if($t -match '(?im)^\\s*PASS\\b'){ 'PASS' } elseif($t -match '(?im)^\\s*FAIL\\b'){ 'FAIL' } else { 'UNKNOWN' }"`) do set "REVIEW_VERDICT=%%V"
+    call :log "[INFO] Reviewer verdict: !REVIEW_VERDICT!"
+
+    set "JIRA_PLAN=.claude\prompts\jira-auto-close-!ISSUE!.json"
+    if /I "!REVIEW_VERDICT!"=="PASS" (
+      > "!JIRA_PLAN!" echo {
+      >>"!JIRA_PLAN!" echo   "moves": [
+      >>"!JIRA_PLAN!" echo     { "issue": "!ISSUE!", "to": "Done" }
+      >>"!JIRA_PLAN!" echo   ],
+      >>"!JIRA_PLAN!" echo   "comments": [
+      >>"!JIRA_PLAN!" echo     { "issue": "!ISSUE!", "body": "Review: reviewer-agent PASS. Auto-closed by start_dev_cycle.bat." }
+      >>"!JIRA_PLAN!" echo   ]
+      >>"!JIRA_PLAN!" echo }
+      call :log "[INFO] Applying Jira close plan (Done) for !ISSUE!."
+    ) else (
+      > "!JIRA_PLAN!" echo {
+      >>"!JIRA_PLAN!" echo   "moves": [
+      >>"!JIRA_PLAN!" echo     { "issue": "!ISSUE!", "to": "In Review" }
+      >>"!JIRA_PLAN!" echo   ],
+      >>"!JIRA_PLAN!" echo   "comments": [
+      >>"!JIRA_PLAN!" echo     { "issue": "!ISSUE!", "body": "Review: reviewer-agent !REVIEW_VERDICT!. Auto-moved to In Review by start_dev_cycle.bat." }
+      >>"!JIRA_PLAN!" echo   ]
+      >>"!JIRA_PLAN!" echo }
+      call :log "[INFO] Applying Jira review plan (In Review) for !ISSUE!."
+    )
+
+    call :run_and_log py .\skills\project-leader-agent\scripts\jira_batch_update.py --plan-file !JIRA_PLAN!
+    if errorlevel 1 (
+      call :log "[ERROR] Jira auto-transition failed."
       exit /b 1
     )
   ) else (
