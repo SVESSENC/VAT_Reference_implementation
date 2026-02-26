@@ -50,13 +50,12 @@ if not defined JIRA_API_TOKEN (
 
 set "ISSUE_ARG="
 set "DRY_RUN_ARG="
-
-if /I "%~1"=="--dry-run" (
-  set "DRY_RUN_ARG=--dry-run"
-) else (
-  set "ISSUE_ARG=%~1"
+set "RUN_AGENT=1"
+for %%A in (%*) do (
+  if /I "%%~A"=="--dry-run" set "DRY_RUN_ARG=--dry-run"
+  if /I "%%~A"=="--no-agent" set "RUN_AGENT=0"
+  if /I not "%%~A"=="--dry-run" if /I not "%%~A"=="--no-agent" if not defined ISSUE_ARG set "ISSUE_ARG=%%~A"
 )
-if /I "%~2"=="--dry-run" set "DRY_RUN_ARG=--dry-run"
 
 if defined ISSUE_ARG (
   call :log "[INFO] Running Jira start flow for issue: %ISSUE_ARG%"
@@ -141,6 +140,26 @@ if errorlevel 1 (
 if exist "!SESSION_PROMPT!" (
   call :log "[INFO] Opening generated session prompt: !SESSION_PROMPT!"
   start "" "!SESSION_PROMPT!"
+)
+
+if defined DRY_RUN_ARG (
+  call :log "[INFO] Dry-run mode: skipping agent execution."
+) else (
+  if "!RUN_AGENT!"=="1" (
+    where codex >nul 2>&1
+    if errorlevel 1 (
+      call :log "[ERROR] codex CLI not found. Cannot auto-run owner agent."
+      exit /b 1
+    )
+    call :log "[INFO] Starting owner agent run via codex exec."
+    call :run_and_log codex exec --dangerously-bypass-approvals-and-sandbox -C "%CD%" "Read .claude\\prompts\\active-session-!ISSUE!.md and .claude\\prompts\\jira-start-brief.md from the repository, then start working on the ticket now."
+    if errorlevel 1 (
+      call :log "[ERROR] Owner agent run failed."
+      exit /b 1
+    )
+  ) else (
+    call :log "[INFO] --no-agent set: skipping owner agent execution."
+  )
 )
 
 call :log "[INFO] Development cycle bootstrapped for !ISSUE!."
