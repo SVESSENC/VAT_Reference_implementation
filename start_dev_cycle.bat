@@ -109,7 +109,7 @@ if defined DRY_RUN_ARG (
 
   git ls-remote --exit-code --heads origin !BRANCH! >nul 2>&1
   if !errorlevel! equ 0 (
-    call :log "[INFO] Branch already exists on origin: !BRANCH! (skip kickoff push)"
+    call :log "[INFO] Branch already exists on origin: !BRANCH! ; skipping kickoff push"
   ) else (
     call :log "[INFO] Creating kickoff commit so branch is visible on GitHub."
     call :run_and_log git commit --allow-empty -m "chore: start !ISSUE! development cycle"
@@ -200,7 +200,7 @@ if defined DRY_RUN_ARG (
       >>"!JIRA_PLAN!" echo     { "issue": "!ISSUE!", "body": "Review: reviewer-agent PASS. Auto-closed by start_dev_cycle.bat." }
       >>"!JIRA_PLAN!" echo   ]
       >>"!JIRA_PLAN!" echo }
-      call :log "[INFO] Applying Jira close plan (Done) for !ISSUE!."
+      call :log "[INFO] Applying Jira close plan Done for !ISSUE!."
     ) else (
       > "!JIRA_PLAN!" echo {
       >>"!JIRA_PLAN!" echo   "moves": [
@@ -210,7 +210,7 @@ if defined DRY_RUN_ARG (
       >>"!JIRA_PLAN!" echo     { "issue": "!ISSUE!", "body": "Review: reviewer-agent !REVIEW_VERDICT!. Max retries reached; moved to In Review by start_dev_cycle.bat." }
       >>"!JIRA_PLAN!" echo   ]
       >>"!JIRA_PLAN!" echo }
-      call :log "[INFO] Max retries reached. Applying Jira review plan (In Review) for !ISSUE!."
+      call :log "[INFO] Max retries reached. Applying Jira review plan In Review for !ISSUE!."
     )
 
     call :run_and_log py .\skills\project-leader-agent\scripts\jira_batch_update.py --plan-file !JIRA_PLAN!
