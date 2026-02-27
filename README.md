@@ -2,7 +2,7 @@
 
 A VAT calculation application built by a team of 4 using AI-assisted development.
 
-> **Before contributing:** Read [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/agent-rules.md](docs/agent-rules.md). Ensure [docs/architecture.md](docs/architecture.md) and [docs/data-contracts.md](docs/data-contracts.md) are pasted into every agent session.
+> **Before contributing:** Read [CONTRIBUTING.md](CONTRIBUTING.md), [docs/agent-rules.md](docs/agent-rules.md), and [docs/agent-rules-strict.md](docs/agent-rules-strict.md). Treat Markdown as authoritative, but load only relevant sections/summaries per task instead of pasting full docs every turn.
 
 ---
 
