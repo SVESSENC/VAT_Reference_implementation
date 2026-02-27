@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paws & Relax Pet Sitting</title>
+  <style>
+    :root {
+      --bg: #f3efe8;
+      --panel: #fffaf3;
+      --text: #2f2a24;
+      --accent: #c86b3c;
+      --accent-dark: #9d4f2b;
+      --accent-darker: #7f3f22;
+      --border: #e5d8c8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #f8f4ed 0%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: min(680px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 14px 32px rgba(47, 42, 36, 0.1);
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 2rem;
+    }
+
+    p {
+      margin-top: 0;
+      line-height: 1.55;
+    }
+
+    .pricing {
+      margin: 22px 0;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .pricing h2 {
+      margin: 0 0 10px 0;
+      font-size: 1.2rem;
+    }
+
+    .pricing ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .pricing li {
+      margin: 6px 0;
+    }
+
+    .book-btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      background: var(--accent-dark);
+      cursor: pointer;
+    }
+
+    .book-btn:hover {
+      background: var(--accent-darker);
+    }
+
+    .book-btn:focus-visible {
+      outline: 3px solid #2f2a24;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Paws & Relax Pet Sitting</h1>
+    <p>
+      Trusted in-home pet sitting for dogs and cats, with daily updates, walks,
+      feeding, and plenty of attention while you are away.
+    </p>
+
+    <section class="pricing" aria-label="Pricing">
+      <h2>Pricing</h2>
+      <ul>
+        <li>30-minute visit: $18</li>
+        <li>60-minute visit: $30</li>
+        <li>Overnight care: $75</li>
+      </ul>
+    </section>
+
+    <button class="book-btn" type="button">Book Now</button>
+  </main>
+</body>
+</html>

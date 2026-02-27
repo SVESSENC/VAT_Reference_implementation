@@ -124,28 +124,7 @@ if defined DRY_RUN_ARG (
     )
   )
 
-  set "PR_BASE=dev"
-  set "PR_TITLE=feat: !ISSUE! automated cycle"
-  set "PR_BODY=Auto-created by start_dev_cycle.bat for !ISSUE!."
-  call :log "[INFO] Ensuring PR exists for !BRANCH! -> !PR_BASE!."
-  where gh >nul 2>&1
-  if !errorlevel! equ 0 (
-    call :run_and_log gh pr view --head !BRANCH! --base !PR_BASE!
-    if errorlevel 1 (
-      call :run_and_log gh pr create --base !PR_BASE! --head !BRANCH! --title "!PR_TITLE!" --body "!PR_BODY!"
-      if errorlevel 1 (
-        call :log "[WARN] Could not auto-create PR with gh."
-      )
-    ) else (
-      call :log "[INFO] PR already exists for branch !BRANCH!."
-    )
-  ) else (
-    for /f "usebackq delims=" %%U in (`powershell -NoProfile -Command "$u=(git remote get-url origin).Trim(); if($u -match 'github.com[:/](.+)$'){ $p=($Matches[1] -replace '\\.git$',''); 'https://github.com/' + $p + '/compare/!PR_BASE!...!BRANCH!?expand=1' }"`) do set "PR_URL=%%U"
-    if defined PR_URL (
-      call :log "[WARN] Auto PR skipped. Install/auth gh CLI to enable automatic creation."
-      call :log "[INFO] PR create URL: !PR_URL!"
-    )
-  )
+  call :log "[INFO] Pull request automation disabled; using direct branch pushes."
 )
 
 set "SKILLS=!OWNER_AGENT!,reviewer-agent"
@@ -266,6 +245,12 @@ if defined DRY_RUN_ARG (
       call :log "[ERROR] Failed updating roadmap checklist."
       exit /b 1
     )
+
+    call :auto_commit_and_push !BRANCH! !ISSUE!
+    if errorlevel 1 (
+      call :log "[ERROR] Auto commit/push failed."
+      exit /b 1
+    )
   ) else (
     call :log "[INFO] --no-agent set: skipping owner agent execution."
   )
@@ -296,4 +281,30 @@ if "%~1"=="" (
   echo %~1
   >>"%LOG_FILE%" echo %~1
 )
+exit /b 0
+
+:auto_commit_and_push
+set "TARGET_BRANCH=%~1"
+set "TARGET_ISSUE=%~2"
+if not defined TARGET_BRANCH (
+  call :log "[WARN] Missing branch for auto push; skipping."
+  exit /b 0
+)
+
+call :log "[INFO] Auto-committing and pushing branch !TARGET_BRANCH!."
+call :run_and_log git add -A
+if errorlevel 1 exit /b 1
+
+git diff --cached --quiet
+if !errorlevel! equ 0 (
+  call :log "[INFO] No new changes to commit."
+  exit /b 0
+)
+
+call :run_and_log git commit -m "chore: automated cycle update !TARGET_ISSUE!"
+if errorlevel 1 exit /b 1
+
+call :run_and_log git push origin !TARGET_BRANCH!
+if errorlevel 1 exit /b 1
+
 exit /b 0
