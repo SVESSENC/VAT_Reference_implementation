@@ -4,6 +4,18 @@ Purpose: define non-negotiable operating rules that prevent agent drift in plann
 
 Scope: all human+agent ticket work in this repository.
 
+## Principles
+
+1. Source-of-truth first: canonical docs define contracts, architecture, VAT rules, and workflow.
+2. Strict scope ownership: one ticket, one branch, one bounded module scope.
+3. Requirements before code: no implementation starts without clear purpose, scope, security, and acceptance criteria.
+4. No assumption-based coding: unclear items must be clarified, not guessed.
+5. Anti-drift delivery: no unrequested features, undocumented logic, or unrelated refactors.
+6. Quality-gated closure: explicit review verdict and evidence are required before closure actions.
+7. Process consistency: Jira updates and handoffs follow one repeatable controlled flow.
+8. Living docs, efficient retrieval: docs stay authoritative, but context is loaded by relevant section/summary and reused instead of repeated wholesale.
+9. Auditability by default: each ticket leaves a clear trail of what changed, why, and final status.
+
 | Rule ID | Rule (Must) | Drift Risk Prevented | Enforcement Check | Required Evidence | If Violated |
 |---|---|---|---|---|---|
 | AR-01 | Read canonical docs before implementation: `docs/project-status.md`, `docs/architecture.md`, `docs/data-contracts.md`, and `docs/vat-rules.md` when VAT logic is in scope. | Working from stale or invented context. | Session start checklist includes all docs. | Session notes or prompt snippet listing loaded docs. | Stop work, reload docs, restart task framing. |
