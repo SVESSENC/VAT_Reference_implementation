@@ -1,0 +1,8 @@
+{
+  "moves": [
+    { "issue": "TC-22", "to": "Done" }
+  ],
+  "comments": [
+    { "issue": "TC-22", "body": "Review: reviewer-agent PASS. Auto-closed by start_dev_cycle.bat." }
+  ]
+}
