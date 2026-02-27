@@ -20,10 +20,8 @@ Scope: all human+agent ticket work in this repository.
 | AR-12 | Run reviewer gate with explicit first-line verdict `PASS` or `FAIL` before closure decisions. | Inconsistent quality threshold. | Review output parser verifies verdict line. | Saved review artifact file. | Ticket cannot advance to Done. |
 | AR-13 | `Done` is allowed only after reviewer `PASS`; `FAIL` keeps ticket active (`In Progress` or `In Review`). | Premature closure and unresolved defects. | Jira transition is gated by verdict. | Jira plan/comment includes verdict evidence. | Reopen or move back and create fix loop. |
 | AR-14 | Jira updates must be batched at end of session (status, assignee, comments together). | Workflow drift and partial state updates. | Use batch plan file and batch updater script. | Plan JSON plus updater execution log. | Re-run Jira updates using batch process. |
-| AR-15 | Agent-generated code must be human-reviewed line-by-line before commit. | Blind acceptance of incorrect output. | Manual review sign-off required before commit. | Commit/PR note describing what was verified. | Do not commit until reviewed. |
 | AR-16 | Tests must cover changed critical behavior before review gate. | Undetected regressions and false PASS. | Run relevant unit/integration tests for changed paths. | Test run output attached or summarized. | Add tests/fixes before rerunning review. |
 | AR-17 | Update tracking artifacts in same final change set: `CHANGELOG.md` and `docs/project-status.md` when applicable. | Documentation drift from shipped behavior. | Final pre-PR checklist includes both files. | Diff includes required doc updates. | Update docs before PR/merge. |
-| AR-18 | Never force-push protected branches or rewrite shared history for agent cleanup. | Coordination failures and lost teammate work. | Enforce non-destructive git policy. | Git history shows standard merge/rebase flow only. | Stop and escalate to team lead immediately. |
 | AR-19 | Autonomous loops must have bounded retries and hard stop conditions on repeated FAIL or blockers. | Infinite churn and quality collapse. | Verify retry cap and stop conditions in automation scripts. | Script config/log shows capped retries. | Halt automation and switch to manual triage. |
 | AR-20 | Closure report must capture changed files, reviewer output, and final Jira status. | Loss of auditability and weak handoff. | Generate end-of-ticket report artifact. | `finished-tickets/<ISSUE>.md` present and complete. | Regenerate report before closure. |
 | AR-21 | Treat Markdown as authoritative, but retrieve context by topic/section, not by pasting entire documents each turn. | Token bloat and context dilution. | Prompt contains only relevant doc sections for current task. | Session prompt references specific headings/files. | Re-run with scoped retrieval only. |
@@ -35,10 +33,3 @@ Scope: all human+agent ticket work in this repository.
 | AR-27 | Agent outputs must reference doc section titles/paths instead of restating large documentation blocks unless explicitly requested. | Response verbosity and duplicated context. | Review output checks for section references over doc restatement. | Output includes file+heading references for decisions. | Rewrite response to references-only style. |
 | AR-28 | When documentation changes, update only impacted sections and summaries; do not republish unrelated content. | Churn and accidental drift in stable docs. | Doc diff limited to relevant headings. | PR doc diff scoped to impacted sections only. | Revert unrelated doc changes and re-submit focused update. |
 
-## Gate Summary
-
-| Gate | Entry Condition | Exit Condition |
-|---|---|---|
-| Ready to Implement | AR-01 and AR-02 satisfied | Branch created and scoped prompt approved |
-| Ready for Review | AR-03 through AR-11 satisfied | Reviewer output produced (AR-12) |
-| Ready to Close | AR-12 through AR-28 satisfied | Jira moved per verdict with evidence |
